@@ -1,1 +1,1 @@
-# Astrology-skills
+# Kundali-jyotish-skills
