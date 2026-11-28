@@ -2,7 +2,7 @@
 
 Contents: 1. Profiles · 2. Birth-time rectification · 3. Kundali milan · 4. Muhurta finder ·
 5. Built-in ephemeris · 6. Event finder · 7. Tajik Varshphal · 8. KP Prashna · 9. Charts and
-PDF · 10. Daily rashifal · 11. Prediction log
+PDF · 10. Daily rashifal · 11. Prediction log · 12. Report verification
 
 ## 1. Profiles
 
@@ -157,6 +157,20 @@ $PY $J log mark --id 3 --outcome hit|partial|miss --note "..."
 $PY $J log stats [--profile rahul]           # hit rate by strength, area, technique
 ```
 Stored in `~/.kundali/predictions.json` next to the profiles.
+
+## 12. Report verification
+
+```bash
+$PY $J verify --report extracted.json [--profile rahul]
+```
+`extracted.json`: `date`, `time`, `tz`, `lat`, `lon` (optional if given as flags/profile),
+`lagna`, `planets` ({"Sun": "Simha 06°42'21\"", "Mars": "Vrishabh 24-18-40", "Moon": 61.08, ...};
+English or Hindi sign names, D-M-S in any separator, or absolute degrees) and optional `dasha`
+([{"lord": "Jupiter", "start": "2013-07-29", "end": "2029-07-29"}]). The output marks each body OK /
+close / MISMATCH and diagnoses: uniform offset -> other ayanamsa (names the closest) or a tropical
+report; Lagna-only mismatch -> tests 1 h (war time/DST), 12 h (AM/PM) and 30 min shifts; Moon-only
+mismatch -> birth-time difference in minutes; node offset -> mean vs true node; dasha start shift ->
+year-length convention or a Moon difference.
 
 ## Not implemented
 

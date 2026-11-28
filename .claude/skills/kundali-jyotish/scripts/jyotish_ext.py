@@ -550,6 +550,137 @@ def cmd_muhurta(args):
     print("\n".join(out))
 
 
+
+# --------------------------------------------------------------------------
+# verify: check a report's numbers against a fresh calculation
+# --------------------------------------------------------------------------
+
+SIGN_ALIAS = {}
+for i, names in enumerate([
+        ("aries", "mesh", "mesha", "ari"), ("taurus", "vrishabh", "vrishabha", "vrushabh", "vrisabh", "tau"),
+        ("gemini", "mithun", "mithuna", "gem"), ("cancer", "kark", "karka", "karkat", "can"),
+        ("leo", "simha", "singh", "sinh"), ("virgo", "kanya", "vir"), ("libra", "tula", "lib"),
+        ("scorpio", "vrishchik", "vrischik", "vrishchika", "vrushchik", "sco"),
+        ("sagittarius", "dhanu", "dhanus", "sag"), ("capricorn", "makar", "makara", "cap"),
+        ("aquarius", "kumbh", "kumbha", "aqu"), ("pisces", "meen", "meena", "mina", "pis")]):
+    for nm in names:
+        SIGN_ALIAS[nm] = i
+PLANET_ALIAS = {"sun": "Sun", "surya": "Sun", "su": "Sun", "moon": "Moon", "chandra": "Moon", "mo": "Moon",
+                "mars": "Mars", "mangal": "Mars", "ma": "Mars", "mercury": "Mercury", "budh": "Mercury",
+                "me": "Mercury", "jupiter": "Jupiter", "guru": "Jupiter", "ju": "Jupiter", "brihaspati": "Jupiter",
+                "venus": "Venus", "shukra": "Venus", "ve": "Venus", "saturn": "Saturn", "shani": "Saturn",
+                "sa": "Saturn", "rahu": "Rahu", "ra": "Rahu", "ketu": "Ketu", "ke": "Ketu",
+                "lagna": "Lagna", "asc": "Lagna", "ascendant": "Lagna", "la": "Lagna"}
+
+
+def parse_position(v):
+    """'Leo 06°42'21"', 'Simha 6-42-21', '6:42:21 Leo', '126.7056' -> absolute degrees."""
+    if isinstance(v, (int, float)):
+        return float(v) % 360
+    txt = str(v).lower()
+    sign = None
+    for word in re.findall(r"[a-z]+", txt):
+        if word in SIGN_ALIAS:
+            sign = SIGN_ALIAS[word]
+            break
+    nums = [float(x) for x in re.findall(r"\d+(?:\.\d+)?", txt)]
+    if not nums:
+        raise ValueError(f"no number in position '{v}'")
+    deg = nums[0] + (nums[1] / 60 if len(nums) > 1 else 0) + (nums[2] / 3600 if len(nums) > 2 else 0)
+    if sign is None:
+        return deg % 360
+    return (sign * 30 + deg) % 360
+
+
+def cmd_verify(args):
+    J = _J()
+    rep = json.load(open(args.report))
+    for k in ("date", "time", "tz", "lat", "lon"):
+        if getattr(args, k, None) is None and k in rep:
+            setattr(args, k, rep[k])
+    missing = [k for k in ("date", "time", "tz", "lat", "lon") if getattr(args, k, None) is None]
+    if missing:
+        raise SystemExit(f"verify needs birth details {missing} (flags, --profile, or in the JSON)")
+    n = J.Natal(args)
+    given = {}
+    for k, v in (rep.get("planets") or {}).items():
+        p = PLANET_ALIAS.get(k.strip().lower())
+        if p:
+            given[p] = parse_position(v)
+    if "lagna" in rep:
+        given["Lagna"] = parse_position(rep["lagna"])
+    comp = dict(n.lons)
+    comp["Lagna"] = n.asc_lon
+    rows, diffs = [], {}
+    for p in ["Lagna"] + J.PLANETS:
+        if p not in given:
+            continue
+        d = ((given[p] - comp[p] + 180) % 360 - 180) * 60   # arc-minutes, report minus computed
+        diffs[p] = d
+        st = "OK" if abs(d) < 5 else "close" if abs(d) < 60 else "MISMATCH"
+        rows.append([p, J.fmt_lon(given[p]), J.fmt_lon(comp[p]), f"{d:+.1f}'",
+                     "same" if J.sign_of(given[p]) == J.sign_of(comp[p]) else "DIFFERENT SIGN", st])
+    out = [f"# Report check ({args.ayanamsa} ayanamsa, {args.node} node, {n.eph.engine})", "",
+           J.table(["Body", "Report", "Computed", "Diff (report-computed)", "Sign", "Status"], rows), ""]
+    diag = []
+    slow = [diffs[p] for p in ("Sun", "Mars", "Mercury", "Jupiter", "Venus", "Saturn") if p in diffs]
+    if len(slow) >= 3:
+        med = sorted(slow)[len(slow) // 2]
+        spread = max(slow) - min(slow)
+        if abs(med) >= 3 and spread < max(3, abs(med) * 0.3):
+            best = None
+            for ay in ("lahiri", "kp", "raman", "yukteshwar", "true_chitra"):
+                ns = argparse.Namespace(**vars(args))
+                ns.ayanamsa = ay
+                e2 = J.make_ephem(ns)
+                off = (((e2.lon(n.jd, "Sun") - n.lons["Sun"]) + 180) % 360 - 180) * 60
+                if best is None or abs(off - med) < abs(best[1] - med):
+                    best = (ay, off)
+            if abs(med) > 1000:
+                diag.append(f"All planets differ by ~{med / 60:.1f}°: the report is probably TROPICAL (Western). Use sidereal values.")
+            else:
+                diag.append(f"All planets differ by ~{med:+.1f}': a different ayanamsa - closest is '{best[0]}' "
+                            f"(offset {best[1]:+.1f}'). Re-run with --ayanamsa {best[0]} to match the report, or explain the difference.")
+        elif spread >= 3:
+            diag.append("Planet differences are not uniform: check the birth DATE and whether the report used the same place/time zone.")
+    if "Lagna" in diffs and abs(diffs["Lagna"]) >= 30 and (not slow or max(abs(x) for x in slow) < 10):
+        target = given["Lagna"]
+        tried = []
+        for label, mins in (("1 hour: war time (1942-45) or DST was handled differently by the report", 60),
+                            ("1 hour: war time (1942-45) or DST was handled differently by the report", -60),
+                            ("12 hours: AM/PM was swapped", 720), ("12 hours: AM/PM was swapped", -720),
+                            ("30 minutes: wrong time-zone offset", 30), ("30 minutes: wrong time-zone offset", -30)):
+            a = n.eph.asc(n.jd - mins / 1440, n.lat, n.lon)
+            tried.append((abs(((target - a + 180) % 360) - 180), label))
+        tried.sort()
+        if tried[0][0] < 1.0:
+            diag.append(f"The report's Lagna matches our chart shifted by {tried[0][1]}. Confirm the recorded "
+                        "clock time with the person and say which chart you use.")
+        else:
+            rate = 0.25  # roughly 1 degree of ascendant per 4 minutes
+            diag.append(f"Lagna differs by {diffs['Lagna'] / 60:+.2f}° (~{abs(diffs['Lagna']) / 60 / rate:.0f} min of time) "
+                        "while planets agree: different birth time or coordinates in the report.")
+    if "Moon" in diffs and abs(diffs["Moon"]) >= 5 and (not slow or max(abs(x) for x in slow) < 3):
+        mins = diffs["Moon"] / 60 / (n.pl["Moon"]["speed"] / 1440)
+        diag.append(f"Moon differs by {diffs['Moon']:+.1f}' = about {mins:+.0f} min of birth time; every dasha date shifts accordingly.")
+    if "Rahu" in diffs and 5 <= abs(diffs["Rahu"]) <= 120:
+        ns = argparse.Namespace(**vars(args))
+        ns.node = "true" if args.node == "mean" else "mean"
+        alt = J.make_ephem(ns).lon(n.jd, "Rahu")
+        if abs(((given["Rahu"] - alt + 180) % 360) - 180) * 60 < 5:
+            diag.append(f"Rahu/Ketu match the {ns.node} node: the report uses the {ns.node} node (use --node {ns.node}).")
+    for md in rep.get("dasha", []):
+        lord = md.get("lord", "").strip().title()
+        hit = next((m for m in n.dasha.mds if m[0] == lord and abs(m[1] - J.jd_from_utc(n.tz.to_utc(J.parse_date(md['start'])))) < 400)
+                   if md.get("start") else None, None)
+        if hit:
+            dd = (J.jd_from_utc(n.tz.to_utc(J.parse_date(md["start"]))) - hit[1])
+            diag.append(f"{lord} Mahadasha start differs by {dd:+.0f} days"
+                        + (" (year-length convention, fine)" if abs(dd) <= 10 else " (Moon/birth-time difference - check)"))
+    out.append("**Diagnosis**\n")
+    out += [f"- {d}" for d in diag] or ["- Report and calculation agree; proceed with the computed data."]
+    print("\n".join(out))
+
 # --------------------------------------------------------------------------
 # CLI registration
 # --------------------------------------------------------------------------
@@ -576,6 +707,11 @@ def register(sub, add_birth, add_at):
     m.add_argument("--system", default="both", choices=["north", "south", "both"],
                    help="north = Ashtakoota 36 gunas, south = Dashakoota 10 poruthams")
     m.set_defaults(fn=cmd_match, needs_birth=False)
+
+    v = sub.add_parser("verify", help="check a report's planet/lagna/dasha numbers against the calculation")
+    add_birth(v)
+    v.add_argument("--report", required=True, help="JSON with planets/lagna/dasha (and optional birth fields)")
+    v.set_defaults(fn=cmd_verify, needs_birth=False)
 
     u = sub.add_parser("muhurta", help="best days/windows for a purpose")
     add_birth(u)

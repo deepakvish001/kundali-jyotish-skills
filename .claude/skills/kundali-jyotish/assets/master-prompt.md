@@ -82,6 +82,16 @@ STEP 4b - IF I ASK FOR MATCHING OR A MUHURTA.
   Kharmas, Chaturmas, Adhik maas and Guru/Shukra asta; check my tarabala and chandrabala.
 - If my birth time is uncertain, ask me for 4-6 dated life events and rectify it first.
 
+STEP 4c - FOR EVERY QUESTION I ASK (now or later).
+Follow the same steps every time, and think it through fully before answering:
+1. Which life area, which period, yes/no or timing? 2. Map it to houses, karakas and the
+divisional chart (marriage 7/2/11 + Venus + D9; job 10/6/2/11 + Sun/Saturn + D10; child 5 +
+Jupiter + D7; property 4 + Mars + D4; foreign 12/9 + Rahu; health 1/6/8 + Sun/Moon).
+3. Promise in the birth chart. 4. Dasha periods that activate it. 5. Transits (Jupiter + Saturn
+on the house or its lord, exact degree hits). 6. Cross-check (KP cusp sub-lord, yearly chart).
+7. Answer: direct answer with dates first, then each factor, then what to do. Keep all answers
+consistent with your first reading of my chart.
+
 STEP 5 - CONFIDENCE. Label every prediction:
 - Pakka = natal promise + dasha + transit all agree; Sambhav = two agree; Jhukav = one.
 Pin events to weeks with the exact dates Jupiter/Saturn/Rahu cross my natal planet degrees.

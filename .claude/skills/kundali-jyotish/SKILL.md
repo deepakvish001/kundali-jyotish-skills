@@ -55,7 +55,8 @@ and Placidus (KP) cusps are unavailable then; the chart header names the engine 
 
 ## Step 1 - Read the report completely
 
-Read every page/image first. `references/01-reading-reports.md` covers North/South/East Indian
+Read every page/image first - all pages, all tables, footers and small print - before saying
+anything. Do not skim: a report is read once, thoroughly, and then trusted only after Step 2. `references/01-reading-reports.md` covers North/South/East Indian
 layouts, Hindi abbreviations (सू चं मं बु गु शु श रा के, व/वक्री, अ/अस्त, उ/उच्च, नी/नीच), handwritten
 janampatri (Samvat dates, ghati-pal time), and time-zone traps (Indian war time UTC+6:30 Sep 1942 -
 Oct 1945, LMT, DST). Build the Chart Data Sheet (template there). If only birth details are given,
@@ -63,7 +64,12 @@ go to Step 2. Use coordinates from the report or look up the town; use IANA time
 
 ## Step 2 - Recompute and reconcile
 
-Run `report` (or `chart`). Compare with the report: Lagna degree, Moon nakshatra-pada, every
+Write what you extracted into a small JSON (birth fields, `lagna`, `planets` as printed - e.g.
+`"Sun": "Simha 06°42'21\""` - and `dasha` MD rows) and run
+`verify --report extracted.json`: it compares every body with the calculation and diagnoses
+mismatches (ayanamsa, tropical report, war time/DST, AM/PM, birth-time error, mean/true node,
+dasha year length). Resolve every MISMATCH before interpreting. Then run `report` (or `chart`).
+Also compare by eye: Lagna degree, Moon nakshatra-pada, every
 planet's sign/degree (within ~1°; nodes mean vs true ~1.5°), dasha dates (a few days differ by
 year length; months differ = wrong time/ayanamsa). Explain any mismatch and which data you use.
 Check section 19 (birth-time sensitivity): if Lagna, D9 or Moon pada flips within the time's
@@ -71,6 +77,12 @@ uncertainty, read both charts where it matters and say so. When the time is appr
 boundary, ask for 4-6 dated life events (marriage, job, child, education, moves, parents' loss) and
 run `rectify`; use the winning segment's time for everything after and state the rectified time.
 Save birth details with `profile save` so later questions reuse them.
+
+**Keep one source of truth per person.** After the first full reading, save your analysis notes
+(data check result, rectified time, graha and bhava ratings, yogas, key dasha windows, main
+predictions) to `~/.kundali/<profile>-notes.md` (or the session folder). For every later question
+about that person, re-read the notes and the relevant `report` files first, then run only the
+targeted commands the question needs - so all answers stay consistent with each other.
 
 ## Step 3 - Read the chart, layer by layer
 
@@ -118,6 +130,14 @@ Chandal, Grahan, Shrapit, Gandmool) stated directly, with their cancellations an
 **E. Cross-checks**: Jaimini (AK, AmK, DK, Karakamsha, AL, UL, A7, A10), KP significators for
 yes/no questions, special lagnas (HL wealth, GL power, Indu Lagna money, Sree Lagna fortune),
 Gulika/Mandi house, Yogini dasha vs Vimshottari. Agreement raises confidence.
+
+## Step 3b - Every question: the question protocol
+
+Any question - in the first reading or later ("shaadi kab", "naukri", "ye saal", "aaj") - follows
+`references/15-question-playbook.md`: pin the question -> map houses/karakas/varga -> promise ->
+dasha (Vimshottari + Yogini + Chara) -> transit (double transit, exact hits, BAV) -> KP/Tajik
+cross-check -> combine into Pakka/Sambhav/Jhukav -> direct answer with dates, reasons and what to
+do. Think it through fully before writing; never answer from a single factor or from memory.
 
 ## Step 4 - Life areas
 
@@ -208,6 +228,7 @@ specific. If a filesystem exists, also save the reading as Markdown and say wher
 | `references/12-graha-bhava-rashi.md` | Planets in houses and in signs |
 | `references/13-yoga-library.md` | 100+ yogas with formation and results |
 | `references/14-hindi-glossary.md` | Devanagari terms for Hindi readings |
+| `references/15-question-playbook.md` | Answering any specific question: protocol, question map, answer template |
 
 Not implemented (say so if asked, do not improvise): Narayana dasha, Kalachakra dasha and the
 Sarvatobhadra chakra - their rules/layouts need a verified source before they can be computed.
