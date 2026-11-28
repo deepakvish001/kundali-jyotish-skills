@@ -7,28 +7,30 @@ Claude skills for detailed Vedic astrology (Jyotish) kundali reading. The main s
   AstroSage / ClickAstro / Jagannatha Hora printouts (North, South and East Indian charts);
 - **recomputes the chart** with the Swiss Ephemeris and checks it against the report (ayanamsa,
   time zone, Indian war time 1942-45, birth-time sensitivity);
-- analyses it in layers: Lagna, Moon, every planet and house, D1-D60 vargas, yogas and doshas
-  (with cancellations), Vimshottari dasha down to Prana, gochar with vedha and ashtakavarga
-  kakshya, KP cusps and significators, Jaimini karakas and arudhas, Varshphal;
-- gives predictions with timing at **five levels - year, month, week, day and hour** (hora,
-  choghadiya, Rahu kaal, rising-sign windows). Each prediction comes with the reasons behind it
-  and a confidence label (likely / possible / tendency);
+- analyses every layer: rashi, house (whole-sign, Bhava Chalit, KP), exact degree,
+  nakshatra-pada-lord-deity, tara, uchcha/neecha/moolatrikona/swa, natural + temporary +
+  compound friend/enemy tables, vakri/asta/graha yuddha/sandhi/gandanta/vargottama, avasthas,
+  aspects with virupa strength and conjunction orbs, D1-D60 vargas, bala components and
+  Vimshopaka, yogas and doshas (with cancellations), Vimshottari to Prana + Yogini dasha, gochar
+  with vedha, kakshya and exact transit hits, KP, Jaimini, special lagnas, upagrahas, Varshphal;
+- gives direct predictions with timing at **five levels - year, month, week, day and hour**
+  (hora, choghadiya, Rahu kaal, rising-sign windows), each with its reasons and a strength label
+  (Pakka / Sambhav / Jhukav), plus full remedies (gemstone, mantra, daan, dosha upay);
 - answers in the user's language, Hinglish by default for Hinglish questions.
 
-> Jyotish is a traditional interpretive system. The skill makes the *calculations* exact and the
-> *reasoning* transparent; it does not claim events are certain. It refuses death/lifespan
-> predictions, never presents gemstones as cures, and adds "doctor se salah lein" to anything
-> health-related.
+> Calculations are exact (Swiss Ephemeris). Readings are direct, in the voice of a senior jyotishi.
+> Four fixed limits: no date of death or remaining lifespan, never advise stopping medical
+> treatment, no lottery/betting numbers, no prediction of an unborn child's sex.
 
 ## Layout
 
 ```
 .claude/skills/kundali-jyotish/
-├── SKILL.md                 workflow + guardrails (start here)
+├── SKILL.md                 workflow (start here)
 ├── scripts/
 │   ├── setup.sh             finds or installs pyswisseph, prints the python to use
-│   └── jyotish.py           calculation engine: chart | transits | day | dasha | varshphal
-├── references/              01 reading reports ... 08 ethics and remedies
+│   └── jyotish.py           engine: report | chart | transits | day | dasha | varshphal
+├── references/              01 reading reports ... 08 remedies, 09 advanced layers
 ├── assets/master-prompt.md  copy-paste prompt for chat apps without the skill
 └── evals/                   test prompts + a fictional kundali PDF
 ```
@@ -52,12 +54,19 @@ Just talk to Claude:
 
 ## Calculation engine (optional, direct use)
 
+`chart` prints 19 sections: panchang, planets, houses, 16 vargas, KP, yogas/doshas, Jaimini,
+ashtakavarga, Vimshottari to Prana, transits, Sade Sati, planet details (nakshatra deity, tara,
+avasthas, flags), friendship tables, aspect strength in virupas, Bhava Chalit, strength
+(bala components, Vimshopaka), special lagnas and upagrahas, Yogini dasha, prastarashtakavarga,
+birth-time sensitivity. `report` runs everything in one go.
+
 ```bash
 PY=$(bash .claude/skills/kundali-jyotish/scripts/setup.sh)
 S=.claude/skills/kundali-jyotish/scripts/jyotish.py
+$PY $S report    --date 1992-08-23 --time 14:15 --tz Asia/Kolkata --lat 26.9124 --lon 75.7873 --out out/
 $PY $S chart     --date 1992-08-23 --time 14:15 --tz Asia/Kolkata --lat 26.9124 --lon 75.7873 --asof 2026-11-27
 $PY $S transits  --date ... --from 2026-12-01 --to 2027-11-30 --monthly
-$PY $S day       --date ... --day 2026-11-28            # horas, choghadiya, Rahu kaal
+$PY $S day       --date ... --day 2026-11-28 --days 7   # horas, choghadiya, Rahu kaal
 $PY $S dasha     --date ... --level 3 --from 2026-01-01 --to 2030-01-01
 $PY $S varshphal --date ... --year 2027
 ```

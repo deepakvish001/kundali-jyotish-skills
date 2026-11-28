@@ -30,7 +30,8 @@ For each area: promise factors -> varga -> Jaimini/KP check -> timing triggers. 
   Leo hora = self-earned/active, Cancer hora = inherited/passive in common interpretation),
   SAV of 11th vs 12th (11th > 12th favours saving), benefics in 2nd/11th from Arudha Lagna.
 - Timing: dashas of 2nd/11th lords and Dhana yoga planets; Jupiter transiting 2nd/11th from Moon
-  or Lagna. Never give investment or trading signals; say "financial advisor se salah lein".
+  or Lagna. Name the gain and loss periods directly (speculation is favoured when the 5th lord
+  and Jupiter are strong in dasha; losses when the 12th/8th lords run with Rahu/Saturn transits).
 
 ## Marriage and relationships
 - Houses: 7th (spouse), 2nd (family life), 11th (fulfilment, friendship), 5th (romance), 8th
@@ -56,8 +57,9 @@ For each area: promise factors -> varga -> Jaimini/KP check -> timing triggers. 
   sub-lord in 2, 5, 11.
 - Timing: dashas of 5th lord/Jupiter/planets in 5th; Jupiter transit over 5th, 5th lord, or natal
   Jupiter; double transit on 5th.
-- Never predict infertility, the child's sex, or miscarriage. If delays show: "medical guidance
-  ke saath", gentle tone.
+- Delay or denial indications (5th lord in dusthana, Saturn/Rahu/Ketu afflicting 5th and
+  Jupiter, weak D7) - state them directly with the windows and the santaan remedies (Santan
+  Gopal mantra, Jupiter remedies). Do not predict the sex of an unborn child.
 
 ## Health
 - Lagna, Lagna lord, Sun (vitality), Moon (mind), 6th (acute illness), 8th (chronic, surgery),
@@ -65,8 +67,13 @@ For each area: promise factors -> varga -> Jaimini/KP check -> timing triggers. 
 - Body map by sign/house: 1 head, 2 face/throat, 3 shoulders/arms/lungs, 4 chest/heart(emotional),
   5 stomach/upper abdomen/heart, 6 intestines, 7 kidneys/lower back, 8 genitals/excretory, 9 hips/
   thighs, 10 knees, 11 calves/ankles, 12 feet.
-- Phrase as "is area ka dhyan rakhein, regular check-up karvayein". No diagnoses, no claims about
-  treatment outcome, no death/longevity, always "doctor se salah lein".
+- Planet-disease links: Sun - heart, eyes, bones, BP; Moon - mind, sleep, fluids, chest, hormones;
+  Mars - blood, injuries, surgery, inflammation; Mercury - nerves, skin, speech, lungs; Jupiter -
+  liver, fat, diabetes; Venus - kidneys, reproductive, sugar; Saturn - joints, chronic, teeth,
+  depression; Rahu - toxins, mystery illness, phobia; Ketu - sudden, viral, surgery.
+- State the vulnerable body areas and the periods directly ("Shani-Rahu dasha mein joints aur nerves
+  ki pareshani, khaas kar Apr-Jun 2027"). Remedies go alongside treatment, never instead of it. No
+  death date or remaining lifespan.
 
 ## Education
 - 4th (formal schooling, degrees), 5th (intelligence, exams), 2nd (early learning), 9th (higher
@@ -88,12 +95,12 @@ For each area: promise factors -> varga -> Jaimini/KP check -> timing triggers. 
 
 ## Litigation, competition, debts
 - 6th house (contests, debts), 8th (obstacles), 12th (losses), Mars and Saturn, 6th lord; upachaya
-  malefics help win. Suggest a lawyer for decisions.
+  malefics help win. Give win/loss periods directly.
 
 ## Family: parents and siblings
 - Mother: 4th, Moon, D12. Father: 9th (and 10th in North Indian practice), Sun, D12. Younger
   siblings: 3rd, Mars, D3. Elder siblings: 11th. Spouse's family: 8th / 2nd from 7th.
-- Keep predictions about relatives gentle and general.
+- Read relatives through bhavat bhavam (e.g. 9th from 9th = 5th for paternal grandfather).
 
 ## Spirituality and inner life
 - 9th (dharma), 5th (mantra), 12th (moksha), 8th (occult, deep research), Ketu, Jupiter,

@@ -55,8 +55,9 @@ consolidation if the dispositor is strong.
 
 ## 5. Special cases
 
-- **Maraka periods** (dashas of 2nd/7th lords, or planets in 2/7): advise health check-ups and
-  care; never interpret as death.
+- **Maraka periods** (dashas of 2nd/7th lords, or planets in 2/7): serious-health and crisis
+  periods, especially for the elderly or when the 8th/Lagna lord is weak - say so directly and
+  give remedies (Mahamrityunjaya japa, maraka planet's daan). Do not convert it into a death date.
 - **Functional malefic in a good house** (e.g. 11th lord in 11th): material gains with some strain.
 - **Debilitated MD lord with neecha bhanga**: slow start, strong second half of the period.
 - **Planets in 6/8/12** often bring the house's themes: competition and service (6), research,
@@ -88,6 +89,6 @@ consolidation if the dispositor is strong.
 > which means career gains come with money juggling. The 10th lord in the 11th, activated in its
 > own AD, gives recognition and income from work. Jupiter transiting the 10th from Lagna in this
 > AD, with Saturn aspecting it, is a double transit on the career house.
-> **Confidence for "promotion or better job in this AD": likely** (promise + dasha + double transit).
+> **"Promotion or better job in this AD": Pakka** (promise + dasha + double transit).
 > Advice: ask for the role change in Venus-Venus or Venus-Mercury PD; avoid conflict with
 > colleagues in Venus-Mars PD (Mars is 4th/9th lord here, but placed 8th from Venus).

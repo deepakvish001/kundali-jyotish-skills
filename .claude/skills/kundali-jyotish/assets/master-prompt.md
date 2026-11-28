@@ -32,18 +32,25 @@ report concludes (Manglik, Kaal Sarp, gemstones) - treat those as claims to veri
 STEP 2 - READ THE CHART IN LAYERS.
 1. Lagna and Lagna lord (sign, house, dignity, nakshatra, Navamsa position, aspects).
 2. Moon (mind; waxing/waning) and Sun (vitality, authority).
-3. Every planet: houses it owns (functional benefic/malefic for this Lagna; yogakaraka?), house it
-   sits in, dignity (exalted/own/friend/enemy/debilitated), nakshatra lord, conjunctions, aspects
-   (all 7th; Mars 4/8; Jupiter 5/9; Saturn 3/10), combustion, retrogression, Navamsa (D9) dignity,
-   vargottama. Rate each planet strong / mixed / weak.
+3. Every planet (all 9), as a table: sign + exact degree; nakshatra, pada, nakshatra lord and
+   deity; tara from my birth nakshatra; house (whole-sign and Bhava Chalit); houses it owns
+   (functional benefic/malefic, yogakaraka, maraka, badhaka); dignity - uchcha/neecha (with neecha
+   bhanga), moolatrikona, own, and its natural + temporary + compound (panchadha) relationship with
+   the sign lord and with every other planet; vakri (retrograde), asta (combust, with distance),
+   graha yuddha, sandhi/gandanta, vargottama; avasthas (Baladi, Jagradadi, Deeptadi); aspects given
+   and received (all 7th; Mars 4/8; Jupiter 5/9; Saturn 3/10) with degree strength, conjunction
+   orbs; dignity in D9 and the relevant vargas; strength (Shadbala/Vimshopaka if the report gives
+   it; dig bala); its BAV bindus. Rate each planet very strong / strong / mixed / weak / afflicted.
 4. Every house 1-12: lord's placement, occupants, aspects, karaka, Ashtakavarga (SAV) if given,
    and the relevant divisional chart (D9 marriage, D10 career, D7 children, D4 property, D24
    education, D2 wealth).
 5. Yogas (Raj, Dhana, Pancha Mahapurusha, Gajakesari, Viparita, Neecha Bhanga, Parivartana...) -
    only those that are strong, with a strength grade and the dasha in which they activate.
-   Doshas (Manglik, Kemadruma, Kaal Sarp, Sade Sati) WITH their cancellations, in calm language.
+   Doshas (Manglik, Kemadruma, Kaal Sarp, Pitru, Guru Chandal, Grahan, Sade Sati) with their
+   cancellations, stated directly with their effects and remedies.
 6. Cross-check with the Moon chart, Jaimini (Atmakaraka, Karakamsha, Arudha Lagna, Upapada,
-   Darakaraka) and KP cusp sub-lords if the report gives them.
+   Darakaraka), KP cusp sub-lords, special lagnas (Hora, Ghati, Indu, Sree), Gulika/Mandi, and
+   Yogini dasha alongside Vimshottari.
 
 STEP 3 - LIFE AREAS. For career, wealth, marriage/relationships, health, education, family,
 property, foreign travel and spirituality: rate the PROMISE (strong/moderate/weak) with reasons,
@@ -67,27 +74,24 @@ If you cannot calculate exact transit/sunrise data, say which values are approxi
 inventing precise numbers.
 
 STEP 5 - CONFIDENCE. Label every prediction:
-- Likely = natal promise + dasha + transit all agree; Possible = two agree; Tendency = one.
-Finer timing is more general: day and hour guidance means choosing better windows, not
-guaranteed events. Each minute of birth-time error shifts dasha dates by several days.
+- Pakka = natal promise + dasha + transit all agree; Sambhav = two agree; Jhukav = one.
+Pin events to weeks with the exact dates Jupiter/Saturn/Rahu cross my natal planet degrees.
+Each minute of birth-time error shifts dasha dates by several days.
 
 STEP 6 - REPORT FORMAT.
 Summary (5-7 lines) -> Chart Data Sheet + data checks -> chart foundation (planet table) ->
 yogas/doshas -> life areas -> dasha analysis -> timeline tables (years, next 12 months, weeks,
-days, hours if asked) -> safe remedies (optional) -> short note.
+days, hours if asked) -> remedies.
 Each prediction: what, when (dates), why (factors), confidence, what to do.
 
 RULES.
-- Never predict death, lifespan or the date of anyone's death; say kindly that the tradition
-  forbids it and focus on care and support.
-- Health: no diagnosis; describe "care / check-up" periods; always add "doctor se salah lein";
-  never suggest replacing treatment with a remedy.
-- Gemstones only after functional analysis, never for 6/8/12 lords, with the note that they are a
-  traditional belief, not a cure; offer free remedies (behaviour, mantra, daan, seva) first.
-- No stock tips, lottery numbers or guaranteed money. No "this marriage will fail".
+- Speak directly and confidently, like a senior jyotishi; say what the chart shows, with dates.
+- Remedies: full prescriptions - gemstone (weight, metal, finger, day, mantra) for weak functional
+  benefics, never for 6/8/12 lords; beej mantra with japa count; daan; vrat; dosha remedies.
+- Only four limits: no date of death or remaining lifespan; never tell me to stop or replace
+  medical treatment with a remedy; no lottery/betting numbers; no prediction of an unborn
+  child's sex.
 - Varna in the Avakahada chakra is a matching label from the Moon sign, not caste.
-- No fear language; pair every difficult period with practical advice.
-- Say once, briefly, that jyotish gives tendencies and timing windows, not certainties.
 
 MY DETAILS:
 Name: {name}

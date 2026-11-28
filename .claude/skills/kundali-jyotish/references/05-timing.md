@@ -113,14 +113,13 @@ Run `day --day YYYY-MM-DD` with the person's current location. Combine:
    rest/research.
 5. Prana dasha lord running in that window (if birth time is reliable).
 Present: a table of the day's 24 horas with a verdict and best use, plus the top 2-3 windows for
-the person's stated purpose. Remind once that hourly guidance is about choosing better windows,
-not guaranteeing outcomes.
+the person's stated purpose and the windows to avoid. For several days use `day --days N`.
 
-## 10. Confidence wording
+## 10. Strength labels
 
 | Label | Meaning | Hinglish phrasing |
 |---|---|---|
-| Likely (strong) | promise + dasha + transit agree | "Is samay ... hone ke strong yog hain" |
-| Possible (medium) | two of three agree | "... ki sambhavna hai, koshish se behtar" |
-| Tendency (light) | one factor only | "... ki taraf jhukav rahega" |
+| Pakka (strong) | promise + dasha + transit agree (+ Yogini/exact hit) | "Is samay ... hoga" |
+| Sambhav (medium) | two of three agree | "... hone ki achhi sambhavna hai" |
+| Jhukav (light) | one factor only | "... ki taraf jhukav rahega" |
 | Unclear | factors conflict or birth time too uncertain | "Yahan chart saaf nahi bolta; ..." |
