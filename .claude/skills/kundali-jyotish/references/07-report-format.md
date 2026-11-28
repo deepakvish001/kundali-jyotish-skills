@@ -18,12 +18,16 @@ the person clearly does not want; for a single question, answer it first and kee
 
 ## 2. Kundali ka Aadhaar (chart foundation)
    Lagna + Lagna lord, Moon, Sun - personality and life direction.
-   Planet-by-planet table: planet | house | sign/dignity | role for this Lagna | strength | effect.
-   Strongest and weakest houses (with SAV).
+   Graha table (all 9): planet | rashi + degree | nakshatra-pada (lord) | house rashi/chalit |
+   dignity (uchcha/neecha/MT/swa/mitra/shatru) | vakri/asta/yuddha | avastha | key aspects
+   (virupas) | Vimshopaka/bala | functional role | verdict. Then 2-4 lines per planet.
+   Bhava table (all 12): house | sign | lord & its placement | occupants | aspects on madhya |
+   SAV | verdict. Strongest and weakest houses.
 
 ## 3. Yog aur Dosh
-   Only meaningful yogas with strength grade and when they activate. Doshas with cancellations,
-   in calm language. Address what the report claimed (Manglik/Kaal Sarp/stones).
+   Every yoga with strength grade and the dasha that activates it. Doshas stated directly with
+   degree (full/partial/cancelled) and effects. Verify what the report claimed (Manglik/Kaal
+   Sarp/stones) and correct it where the calculation disagrees.
 
 ## 4. Jeevan ke Kshetra (life areas)
    Career, Paisa, Shaadi/Rishte, Swasthya, Shiksha, Parivaar, Property, Videsh, Adhyatm.
@@ -33,23 +37,22 @@ the person clearly does not want; for a single question, answer it first and kee
    Current MD and AD in depth; next AD; the next MD if within ~5 years.
 
 ## 6. Samay-Rekha (timeline)
-   6a. Saal-dar-saal (next 5-10 years): table - period | dasha | main transits | theme | confidence
+   6a. Saal-dar-saal (next 5-10 years): table - period | Vimshottari + Yogini | main transits and
+       exact hits | what happens | strength (Pakka / Sambhav / Jhukav)
    6b. Agle 12 mahine: table - month | PD | key transits | what to expect | do / avoid
    6c. Agle hafte (if asked): table - week dates | Sookshma | Moon houses | key days | advice
    6d. Din-ba-din (if asked): table - date | Moon house | tarabala | chandrabala | verdict | best use
    6e. Ghante-wise (if asked): table for the requested date - time | hora | choghadiya | flags |
        verdict | best for; then "Top windows for <purpose>" and "Avoid".
 
-## 7. Upay (optional, safe)
-   Behavioural and devotional remedies first; gemstone only with cautions (see 08-ethics-remedies.md).
-
-## 8. Zaroori Note
-   2-3 lines: jyotish shows tendencies; decisions with professionals; your effort matters.
+## 7. Upay
+   Full prescriptions per planet and per dosha (08-remedies.md): ratna with weight/metal/finger/
+   day/mantra, or why no ratna; beej mantra + japa count; daan; vrat; path; behaviour.
 ```
 
 ## Style
 
-- Address the person as "aap". Short, confident sentences. Warm, never preachy or scary.
+- Address the person as "aap". Short, confident, direct sentences - say what the chart shows.
 - Every claim of the form "X will happen" carries *when*, *why* and a confidence label.
 - Explain jargon once: "Antardasha (bade dasha ke andar ka chhota period)".
 - Numbers from the script, not rounded into vagueness: "14 Feb 2027 se 3 Sep 2029 tak".
@@ -65,17 +68,17 @@ Summary:
 > isliye communication, travel aur kharch dono badhenge. Sabse achha upcoming window: ...
 
 Prediction with reasoning:
-> **Career - Mar-May 2028 (Possible):** 10th lord Mangal apni rashi mein 10th mein hai (strong
+> **Career - Mar-May 2028 (Sambhav):** 10th lord Mangal apni rashi mein 10th mein hai (strong
 > promise). Is dauran Budh-Mangal PD (Mangal yogakaraka) chalega, par Guru ka gochar 10th par
-> nahi hai - isliye "likely" nahi, "possible". Do: interview aur pitch isi samay rakhein.
+> nahi hai - isliye "Pakka" nahi, "Sambhav". Do: interview aur pitch isi samay rakhein.
 > Avoid: us mahine ke Chandrashtama din (table dekhein).
 
 Hourly row:
 > | 10:12-11:08 | Guru hora (aapke 9th lord) | Shubh | - | **Best** | important call, decision |
 
 Health line:
-> Aath-ve ghar par Shani ka gochar hai, isliye is saal routine check-up aur neend ka dhyan rakhein
-> - kisi bhi taklif mein doctor se salah lein.
+> Aath-ve ghar par Shani ka gochar aur Rahu ki antardasha - is saal joints, nerves aur neend ki
+> pareshani ke yog hain, khaas kar Apr-Jun. Shanivar ko til-tel daan aur Mahamrityunjaya japa karein.
 
 ## Length guidance
 

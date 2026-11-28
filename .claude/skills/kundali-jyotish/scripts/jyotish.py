@@ -23,6 +23,9 @@ Subcommands
              pyswisseph if you pass --moon-lon (sidereal Moon from a report).
   varshphal  Tajik solar return for a year: exact moment, Varsha lagna,
              Muntha, planets.
+  report     Everything above in one go, written as numbered files to --out
+             (chart, 12-month and 7-day transits with exact hits, tomorrow's
+             hours, current Varshphal, 5-year slow transits).
 
 Examples
   python3 jyotish.py chart --date 1996-03-14 --time 06:40 --tz Asia/Kolkata \
@@ -209,6 +212,32 @@ GULIKA_PART = [6, 5, 4, 3, 2, 1, 7]
 TARA = ["Janma (mixed)", "Sampat (good)", "Vipat (bad)", "Kshema (good)",
         "Pratyari (bad)", "Sadhaka (good)", "Naidhana/Vadha (bad)",
         "Mitra (good)", "Parama Mitra (good)"]
+
+
+NAK_DEITY = ["Ashwini Kumaras", "Yama", "Agni", "Prajapati (Brahma)", "Soma", "Rudra", "Aditi",
+             "Brihaspati", "Nagas", "Pitris", "Bhaga", "Aryaman", "Savitar", "Tvashtar", "Vayu",
+             "Indra-Agni", "Mitra", "Indra", "Nirriti", "Apas", "Vishvedevas", "Vishnu", "Vasus",
+             "Varuna", "Aja Ekapada", "Ahirbudhnya", "Pushan"]
+NAK_NATURE = ["Kshipra", "Ugra", "Mishra", "Dhruva", "Mridu", "Tikshna", "Chara", "Kshipra",
+              "Tikshna", "Ugra", "Ugra", "Dhruva", "Kshipra", "Mridu", "Chara", "Mishra", "Mridu",
+              "Tikshna", "Tikshna", "Ugra", "Dhruva", "Chara", "Chara", "Chara", "Ugra", "Dhruva",
+              "Mridu"]
+NAISARGIKA_BALA = {"Sun": 60.0, "Moon": 51.43, "Venus": 42.86, "Jupiter": 34.29,
+                   "Mercury": 25.71, "Mars": 17.14, "Saturn": 8.57}
+MEAN_SPEED = {"Mars": 0.524, "Mercury": 0.9856, "Jupiter": 0.0831, "Venus": 0.9856,
+              "Saturn": 0.0335}
+# Vimshopaka weights, Shodashavarga scheme (sum 20)
+VIMSHOPAKA_W = {1: 3.5, 2: 1, 3: 1, 4: 0.5, 7: 0.5, 9: 3, 10: 0.5, 12: 0.5, 16: 2, 20: 0.5,
+                24: 0.5, 27: 0.5, 30: 1, 40: 0.5, 45: 0.5, 60: 4}
+SAPTAVARGA = [1, 2, 3, 7, 9, 12, 30]
+INDU_KALA = {"Sun": 30, "Moon": 16, "Mars": 6, "Mercury": 8, "Jupiter": 10, "Venus": 12,
+             "Saturn": 1}
+YOGINI = [("Mangala", "Moon", 1), ("Pingala", "Sun", 2), ("Dhanya", "Jupiter", 3),
+          ("Bhramari", "Mars", 4), ("Bhadrika", "Mercury", 5), ("Ulka", "Saturn", 6),
+          ("Siddha", "Venus", 7), ("Sankata", "Rahu", 8)]
+GULIKA_NIGHT_PART = [2, 1, 7, 6, 5, 4, 3]   # Mon..Sun, 1-based eighth of the night
+REL_SHORT = {"Great friend (Adhimitra)": "GF", "Friend (Mitra)": "F", "Neutral (Sama)": "N",
+             "Enemy (Shatru)": "E", "Great enemy (Adhishatru)": "GE"}
 
 AYANAMSAS = {}
 if HAVE_SWE:
@@ -696,6 +725,239 @@ def arudha(house, lagna_sign, signs):
     return a
 
 
+
+# --------------------------------------------------------------------------
+# Advanced layers: friendship, sphuta drishti, avasthas, strength, chalit,
+# special lagnas, upagrahas, Yogini dasha
+# --------------------------------------------------------------------------
+
+def friendship_tables(signs):
+    nat, tmp, cmp_ = [], [], []
+    code = {"friend": "F", "neutral": "N", "enemy": "E"}
+    for p in SEVEN:
+        a, b, c = [p], [p], [p]
+        for q in SEVEN:
+            if p == q:
+                a.append("-"); b.append("-"); c.append("-")
+                continue
+            a.append(code[natural_rel(p, q)])
+            b.append("F" if house_from(signs[q], signs[p]) in (2, 3, 4, 10, 11, 12) else "E")
+            c.append(REL_SHORT[compound_rel(p, q, signs[p], signs[q])])
+        nat.append(a); tmp.append(b); cmp_.append(c)
+    return nat, tmp, cmp_
+
+
+def drishti_virupa(p, d):
+    """BPHS sphuta drishti of planet p on a point d degrees ahead of it (0-60 virupas)."""
+    d %= 360
+    if d < 30 or d >= 300:
+        v = 0.0
+    elif d < 60:
+        v = (d - 30) / 2
+    elif d < 90:
+        v = (d - 60) + 15
+    elif d < 120:
+        v = (120 - d) / 2 + 30
+    elif d < 150:
+        v = 150 - d
+    elif d < 180:
+        v = (d - 150) * 2
+    else:
+        v = (300 - d) / 2
+    if p == "Mars" and (90 <= d < 120 or 210 <= d < 240):
+        v += 15
+    if p == "Jupiter" and (120 <= d < 150 or 240 <= d < 270):
+        v += 30
+    if p == "Saturn" and (60 <= d < 90 or 270 <= d < 300):
+        v += 45
+    return min(v, 60.0)
+
+
+def jagradadi(dg):
+    if dg.startswith(("Exalted", "Own", "Moolatrikona")):
+        return "Jagrat (awake)"
+    if dg.startswith(("Great friend", "Friend", "Neutral")):
+        return "Swapna (dreaming)"
+    return "Sushupti (asleep)"
+
+
+def deeptadi(dg, combust):
+    if combust:
+        return "Kopa (combust)"
+    for key, name in (("Exalted", "Deepta"), ("Moolatrikona", "Swastha"), ("Own", "Swastha"),
+                      ("Great friend", "Mudita"), ("Friend", "Shanta"), ("Neutral", "Dina"),
+                      ("Enemy", "Duhkhita"), ("Great enemy", "Khala"),
+                      ("Debilitated", "Vikala")):
+        if dg.startswith(key):
+            return name
+    return "-"
+
+
+def flags_for(p, lon, n):
+    f = []
+    d = deg_in_sign(lon)
+    if d < 1 or d > 29:
+        f.append("Sandhi (sign edge)")
+    nk = nakshatra_info(lon)
+    if (nk["index"] in (8, 17, 26) and nk["pada"] == 4) or (nk["index"] in (9, 18, 0) and nk["pada"] == 1):
+        f.append("Gandanta")
+    if varga_sign(lon, 9) == sign_of(lon):
+        f.append("Vargottama")
+    if p in ("Mars", "Mercury", "Jupiter", "Venus", "Saturn"):
+        for q in ("Mars", "Mercury", "Jupiter", "Venus", "Saturn"):
+            if q != p and ang_dist(lon, n.lons[q]) < 1.0:
+                f.append(f"War with {q}")
+    return f
+
+
+def vimshopaka(p, lon, signs):
+    total = 0.0
+    fac = {"GF": 18, "F": 15, "N": 10, "E": 7, "GE": 5}
+    for v, w in VIMSHOPAKA_W.items():
+        sv = varga_sign(lon, v)
+        if sv in OWN[p] or sv == EXALT[p][0]:
+            f = 20
+        else:
+            lord = SIGN_LORD[sv]
+            f = fac[REL_SHORT[compound_rel(p, lord, signs[p], signs[lord])]]
+        total += w * f / 20.0
+    return total
+
+
+def strength_components(n):
+    """Classical bala components in virupas (60 virupas = 1 rupa). Not a full Shadbala."""
+    asc, mc = n.asc_lon, n.mc_lon
+    zero = {"Sun": mc + 180, "Mars": mc + 180, "Jupiter": asc + 180, "Mercury": asc + 180,
+            "Saturn": asc, "Moon": mc, "Venus": mc}
+    elong = ang_dist(n.lons["Moon"], n.lons["Sun"])
+    rows = {}
+    for p in SEVEN:
+        lon = n.lons[p]
+        deb = norm(EXALT[p][0] * 30 + EXALT[p][1] + 180)
+        uchcha = ang_dist(lon, deb) / 3
+        dig = ang_dist(lon, zero[p]) / 3
+        paksha = elong / 3 if p in ("Jupiter", "Venus", "Moon", "Mercury") else 60 - elong / 3
+        sv_pts = 0.0
+        pts = {"GF": 22.5, "F": 15, "N": 7.5, "E": 3.75, "GE": 1.875}
+        for v in SAPTAVARGA:
+            sv = varga_sign(lon, v)
+            mt = MOOLATRIKONA[p]
+            if v == 1 and sv == mt[0] and mt[1] <= deg_in_sign(lon) < mt[2]:
+                sv_pts += 45
+            elif sv in OWN[p] or sv == mt[0]:
+                sv_pts += 30
+            else:
+                lord = SIGN_LORD[sv]
+                sv_pts += pts[REL_SHORT[compound_rel(p, lord, n.signs[p], n.signs[lord])]]
+        if p in MEAN_SPEED:
+            sp = n.pl[p]["speed"]
+            m = MEAN_SPEED[p]
+            chesta = 60 if sp < 0 else 15 if sp < 0.1 * m else 15 if sp < 0.9 * m else 30 if sp <= 1.1 * m else 45
+        else:
+            chesta = None
+        drik = 0.0
+        for q in SEVEN:
+            if q == p:
+                continue
+            v = drishti_virupa(q, norm(lon - n.lons[q]))
+            drik += v if q in ("Jupiter", "Venus", "Mercury", "Moon") else -v
+        rows[p] = {"uchcha": uchcha, "dig": dig, "naisargika": NAISARGIKA_BALA[p],
+                   "paksha": paksha, "saptavargaja": sv_pts, "chesta": chesta,
+                   "drik": drik / 4, "vimshopaka": vimshopaka(p, lon, n.signs)}
+    return rows
+
+
+def sripati_bhavas(asc, mc):
+    ic, desc = norm(mc + 180), norm(asc + 180)
+    arc = lambda a, b: norm(b - a)
+    m = {1: asc, 4: ic, 7: desc, 10: mc}
+    for a, b, h in ((asc, ic, 2), (ic, desc, 5), (desc, mc, 8), (mc, asc, 11)):
+        span = arc(a, b)
+        m[h] = norm(a + span / 3)
+        m[h + 1] = norm(a + 2 * span / 3)
+    start = {h: norm(m[(h - 2) % 12 + 1] + arc(m[(h - 2) % 12 + 1], m[h]) / 2) for h in range(1, 13)}
+    return m, start
+
+
+def chalit_house(lon, start):
+    for h in range(1, 13):
+        a, b = start[h], start[h % 12 + 1]
+        if norm(lon - a) < norm(b - a):
+            return h
+    return 12
+
+
+def special_points(n):
+    """Special lagnas and upagrahas. Needs sunrise/sunset of the birth day."""
+    e = n.eph
+    wd, sr = vedic_day(e, n.local, n.tz, n.lat, n.lon)
+    ss = e.sun_event(sr, n.lat, n.lon, False)
+    sr2 = e.sun_event(ss, n.lat, n.lon, True)
+    day_birth = sr <= n.jd < ss
+    mins = (n.jd - sr) * 1440.0
+    sun_sr = e.lon(sr, "Sun")
+    out = {
+        "Bhava Lagna (BL)": norm(sun_sr + 0.25 * mins),
+        "Hora Lagna (HL)": norm(sun_sr + 0.5 * mins),
+        "Ghati Lagna (GL)": norm(sun_sr + 1.25 * mins),
+    }
+    L, M = n.lagna, n.moon_sign
+    kal = INDU_KALA[SIGN_LORD[(L + 8) % 12]] + INDU_KALA[SIGN_LORD[(M + 8) % 12]]
+    r = kal % 12 or 12
+    indu_sign = (M + r - 1) % 12
+    out["Indu Lagna (wealth)"] = indu_sign * 30 + 15.0
+    frac = nakshatra_info(n.lons["Moon"])["fraction_elapsed"]
+    out["Sree Lagna (prosperity)"] = norm(n.asc_lon + frac * 360)
+    if day_birth:
+        part = (ss - sr) / 8
+        k = GULIKA_PART[wd]
+        st = sr + (k - 1) * part
+    else:
+        part = (sr2 - ss) / 8
+        k = GULIKA_NIGHT_PART[wd]
+        st = ss + (k - 1) * part
+    out["Gulika (start of Saturn's part)"] = e.asc(st, n.lat, n.lon)
+    out["Mandi (middle of Saturn's part)"] = e.asc(st + part / 2, n.lat, n.lon)
+    sun = n.lons["Sun"]
+    dhuma = norm(sun + 133 + 1 / 3)
+    vyati = norm(360 - dhuma)
+    pari = norm(vyati + 180)
+    indra = norm(360 - pari)
+    out["Dhuma"] = dhuma
+    out["Vyatipata"] = vyati
+    out["Parivesha"] = pari
+    out["Indrachapa"] = indra
+    out["Upaketu"] = norm(indra + 16 + 2 / 3)
+    return out, ("day" if day_birth else "night")
+
+
+class Yogini:
+    def __init__(self, moon_lon, birth_jd, year_days=365.2425):
+        nk = nakshatra_info(moon_lon)
+        r = (nk["index"] + 1 + 3) % 8
+        i0 = (r - 1) % 8
+        frac = nk["fraction_elapsed"]
+        start = birth_jd - frac * YOGINI[i0][2] * year_days
+        self.balance = (1 - frac) * YOGINI[i0][2]
+        self.mds = []
+        t = start
+        k = 0
+        while t < birth_jd + 110 * year_days:
+            name, lord, yrs = YOGINI[(i0 + k) % 8]
+            self.mds.append(((i0 + k) % 8, t, t + yrs * year_days))
+            t += yrs * year_days
+            k += 1
+
+    @staticmethod
+    def sub(idx, a, b):
+        out, t = [], a
+        for j in range(8):
+            ii = (idx + j) % 8
+            d = (b - a) * YOGINI[ii][2] / 36.0
+            out.append((ii, t, t + d))
+            t += d
+        return out
+
 # --------------------------------------------------------------------------
 # Vimshottari dasha
 # --------------------------------------------------------------------------
@@ -978,8 +1240,8 @@ def detect_yogas(n):
         if set(oh) & {4, 7, 10} and set(oh) & {5, 9}:
             out.append(("Yogakaraka planet", f"{p} owns houses {oh}; its dasha/placement is key "
                         f"(placed in house {house[p]}, {dignity(p, lons[p], S)})."))
-    for a in kendra_lords:
-        for b in trikona_lords:
+    for a in sorted(kendra_lords, key=PLANETS.index):
+        for b in sorted(trikona_lords, key=PLANETS.index):
             key = frozenset((a, b))
             if a == b or key in seen:
                 continue
@@ -1431,9 +1693,125 @@ def cmd_chart(args):
     if rows:
         out.append("\n" + table(["Saturn Dhaiya (+-10/30 years)", "Window"], rows))
 
+    # 11-18. Advanced layers
+    natal_nak = nakshatra_info(n.lons["Moon"])["index"]
+    out.append("\n## 11. Planet details: nakshatra, tara, avasthas, flags\n")
+    rows = []
+    for p in ["Lagna"] + PLANETS:
+        lon = n.asc_lon if p == "Lagna" else n.lons[p]
+        nk = nakshatra_info(lon)
+        tara = TARA[((nk["index"] - natal_nak) % 27) % 9].split(" (")[0]
+        if p in SEVEN:
+            dg = dignity(p, lon, n.signs)
+            r = n.retro(p)
+            c = combustion(p, lon, n.lons["Sun"], r)
+            flg = flags_for(p, lon, n) + (["Retrograde (vakri)"] if r else []) + (
+                [f"Combust {c:.1f}°"] if c is not None else [])
+            av = f"{jagradadi(dg)}; {deeptadi(dg, c is not None)}; {baladi_avastha(lon).split(' (')[0]}"
+        else:
+            flg = flags_for(p, lon, n)
+            av = "-"
+        rows.append([p, fmt_lon(lon), f"{nk['name']}-{nk['pada']}", nk["lord"],
+                     NAK_DEITY[nk["index"]], NAK_NATURE[nk["index"]], tara, av,
+                     ", ".join(flg) or "-"])
+    out.append(table(["Body", "Position", "Nakshatra-pada", "Nak lord", "Deity", "Nature",
+                      "Tara from Janma nak", "Avastha (Jagradadi; Deeptadi; Baladi)", "Flags"], rows))
+
+    nat, tmp, cmp_ = friendship_tables(n.signs)
+    hdr = ["Planet \\ to"] + [ABBR[q] for q in SEVEN]
+    out.append("\n## 12. Planetary friendship (Panchadha maitri)\n")
+    out.append("**Natural (Naisargika)** F friend, N neutral, E enemy\n\n" + table(hdr, nat))
+    out.append("\n**Temporary (Tatkalika)** - friend if 2,3,4,10,11,12 from the planet\n\n" + table(hdr, tmp))
+    out.append("\n**Compound (Panchadha)** GF great friend, F, N, E, GE great enemy - read row planet's view of column planet\n\n" + table(hdr, cmp_))
+
+    out.append("\n## 13. Aspect strength (sphuta drishti, virupas 0-60) and conjunction orbs\n")
+    rows = []
+    for a in SEVEN:
+        rows.append([a] + [("-" if a == b else f"{drishti_virupa(a, norm(n.lons[b] - n.lons[a])):.0f}")
+                           for b in SEVEN])
+    out.append("Row planet aspects column planet (60 = full, 45 = 3/4, 30 = 1/2, 15 = 1/4):\n\n"
+               + table(["Aspecting \\ aspected"] + [ABBR[q] for q in SEVEN], rows))
+    madhya, start = sripati_bhavas(n.asc_lon, n.mc_lon)
+    rows = []
+    for a in SEVEN:
+        rows.append([a] + [f"{drishti_virupa(a, norm(madhya[h] - n.lons[a])):.0f}" for h in range(1, 13)])
+    out.append("\nAspect on each bhava madhya (house centre):\n\n"
+               + table(["Aspecting \\ house"] + [f"H{h}" for h in range(1, 13)], rows))
+    conj = []
+    for i, a in enumerate(PLANETS):
+        for b in PLANETS[i + 1:]:
+            if n.signs[a] == n.signs[b] and {a, b} != {"Rahu", "Ketu"}:
+                d = ang_dist(n.lons[a], n.lons[b])
+                conj.append([f"{a} + {b}", SIGNS[n.signs[a]], f"{d:.2f}°",
+                             "exact (<1°)" if d < 1 else "close (<5°)" if d < 5 else "wide"])
+    out.append("\nConjunctions:\n\n" + (table(["Pair", "Sign", "Orb", "Strength"], conj) if conj else "None."))
+
+    out.append("\n## 14. Bhava Chalit (Sripati houses)\n")
+    rows = []
+    for h in range(1, 13):
+        occ = [q for q in PLANETS if chalit_house(n.lons[q], start) == h]
+        rows.append([h, fmt_lon(start[h]), fmt_lon(madhya[h]), ", ".join(occ) or "-"])
+    out.append(table(["Bhava", "Starts (sandhi)", "Madhya (centre)", "Planets"], rows))
+    moved = [f"{q}: rashi H{house_from(n.signs[q], n.lagna)} -> chalit H{chalit_house(n.lons[q], start)}"
+             for q in PLANETS if chalit_house(n.lons[q], start) != house_from(n.signs[q], n.lagna)]
+    out.append("\nPlanets that shift house in Chalit: " + ("; ".join(moved) if moved else "none")
+               + ". Sign-based results stay with the rashi house; house-results follow the chalit bhava.")
+
+    out.append("\n## 15. Planetary strength\n")
+    sc = strength_components(n)
+    rows = []
+    for p in SEVEN:
+        r = sc[p]
+        tot = r["uchcha"] + r["dig"] + r["naisargika"] + r["paksha"] + r["saptavargaja"] / 3 + r["drik"] + (r["chesta"] or 30)
+        r["rank_score"] = tot
+        rows.append([p, f"{r['uchcha']:.1f}", f"{r['dig']:.1f}", f"{r['naisargika']:.1f}",
+                     f"{r['paksha']:.1f}", f"{r['saptavargaja']:.1f}",
+                     "-" if r["chesta"] is None else f"{r['chesta']:.0f}", f"{r['drik']:+.1f}",
+                     f"{r['vimshopaka']:.1f}/20"])
+    out.append(table(["Planet", "Uchcha", "Dig", "Naisargika", "Paksha", "Saptavargaja",
+                      "Chesta (approx)", "Drik", "Vimshopaka (16 vargas)"], rows))
+    rank = sorted(SEVEN, key=lambda q: sc[q]["rank_score"], reverse=True)
+    out.append("\nVirupas (60 = 1 rupa). Strength order from these components: " + " > ".join(rank)
+               + ". Vimshopaka: 15+ excellent, 10-15 good, 5-10 average, <5 weak. If the report "
+               "prints full Shadbala (rupas and ratio), prefer it - Kala bala and Ayana bala are not computed here.")
+
+    sp, dn = special_points(n)
+    out.append(f"\n## 16. Special lagnas and upagrahas ({dn} birth)\n")
+    rows = [[k, fmt_lon(v), house_from(sign_of(v), n.lagna), NAKSHATRAS[int(norm(v) // NAK_SPAN)]]
+            for k, v in sp.items()]
+    out.append(table(["Point", "Longitude", "House", "Nakshatra"], rows))
+    out.append("\nIndu Lagna is a sign (wealth); planets in it/kendras from it show earning capacity. "
+               "HL = wealth/status, GL = power/authority, BL = self-expression. Gulika/Mandi mark the "
+               "most malefic sensitive point; its sign-lord's periods and transits over it are difficult.")
+
+    yg = Yogini(n.lons["Moon"], n.jd, args.dasha_year)
+    out.append(f"\n## 17. Yogini dasha (36-year cycle; balance at birth {YOGINI[yg.mds[0][0]][0]} {yg.balance:.2f} y)\n")
+    rows = []
+    for idx, a, b in yg.mds:
+        if b < n.jd or a > asof_jd + 365.2425 * 40:
+            continue
+        cur = " **<- running**" if a <= asof_jd < b else ""
+        rows.append([f"{YOGINI[idx][0]} ({YOGINI[idx][1]})", fmt_local(n.local_of(max(a, n.jd)))[:10],
+                     fmt_local(n.local_of(b))[:10] + cur])
+    out.append(table(["Yogini MD (lord)", "From", "To"], rows))
+    for idx, a, b in yg.mds:
+        if a <= asof_jd < b:
+            rows = [[f"{YOGINI[idx][0]} > {YOGINI[j][0]} ({YOGINI[j][1]})", fmt_local(n.local_of(x))[:10],
+                     fmt_local(n.local_of(y))[:10] + (" **<-**" if x <= asof_jd < y else "")]
+                    for j, x, y in Yogini.sub(idx, a, b)]
+            out.append("\n" + table(["Yogini MD > AD", "From", "To"], rows))
+
+    out.append("\n## 18. Prastarashtakavarga (bindu givers) for Jupiter and Saturn\n")
+    for p in ("Jupiter", "Saturn"):
+        rows = [[c] + ["1" if contrib[p][c][sg] else "." for sg in range(12)] for c in CONTRIBUTORS]
+        rows.append(["**Total**"] + [str(bav[p][sg]) for sg in range(12)])
+        out.append(f"**{p}**\n\n" + table(["Giver"] + [x[:3] for x in SIGNS], rows) + "\n")
+    out.append("Kakshya order in each sign (3°45' each): Saturn, Jupiter, Mars, Sun, Venus, Mercury, Moon, "
+               "Lagna. A slow planet transiting the kakshya of a giver marked 1 gives good results then.")
+
     # 12. Sensitivity
     tab, note = birth_time_sensitivity(n)
-    out.append("\n## 11. Birth-time sensitivity\n")
+    out.append("\n## 19. Birth-time sensitivity\n")
     out.append(tab)
     out.append("\n" + note)
     out.append("\nIf a factor flips within the uncertainty of the recorded time, say so and "
@@ -1513,6 +1891,44 @@ def cmd_transits(args):
     ev.sort()
     out.append("## Events (local time at chosen place)\n")
     out.append(table(["When", "Event"], [[loc(t), s] for t, s in ev]) if ev else "No ingress/station events.")
+
+    # Exact degree hits of slow planets on natal points (conjunction + their full aspects)
+    natal_pts = dict(n.lons)
+    natal_pts["Lagna"] = n.asc_lon
+    natal_pts["MC (10th cusp)"] = n.mc_lon
+    hit_angles = {"Jupiter": [0, 120, 180, 240], "Saturn": [0, 60, 180, 270],
+                  "Rahu": [0], "Ketu": [0], "Mars": [0, 90, 180, 210]}
+    aname = {0: "conjunct", 60: "3rd-aspect", 90: "4th-aspect", 120: "5th-aspect", 180: "7th-aspect (opposition)",
+             210: "8th-aspect", 240: "9th-aspect", 270: "10th-aspect"}
+    hits = []
+    for tp, angs in hit_angles.items():
+        if tp == "Mars" and not args.mars_hits:
+            continue
+        for np_, nl in natal_pts.items():
+            for ang in angs:
+                # natal point lies `ang` degrees AHEAD of the transiting planet
+                f = lambda j, tp=tp, nl=nl, ang=ang: ((e.lon(j, tp) - nl + ang + 180) % 360) - 180
+                t = jd0
+                step = 0.5 if tp == "Mars" else 1.0
+                fa = f(t)
+                while t < jd1:
+                    t2 = min(t + step, jd1)
+                    fb = f(t2)
+                    if (fa < 0) != (fb < 0) and abs(fa) < 10 and abs(fb) < 10:
+                        a_, b_ = t, t2
+                        for _ in range(40):
+                            m_ = (a_ + b_) / 2
+                            if (f(m_) < 0) == (fa < 0):
+                                a_ = m_
+                            else:
+                                b_ = m_
+                        hits.append((b_, f"{tp} {aname[ang]} natal {np_} ({fmt_lon(nl)})"
+                                         + (" [R]" if e.lon_speed(b_, tp)[1] < 0 and tp not in ("Rahu", "Ketu") else "")))
+                    t, fa = t2, fb
+    hits.sort()
+    out.append("\n## Exact transit hits on natal degrees\n")
+    out.append(table(["Exact on", "Hit"], [[loc(t)[:10], s_] for t, s_ in hits]) if hits else "None in range.")
+    out.append("Effects build ~1-2° before exactness; retrograde passes repeat the hit (up to 3 times).")
 
     if args.monthly:
         out.append("\n## Month by month (positions on the 1st and 15th, running dashas)\n")
@@ -1709,6 +2125,59 @@ def cmd_day(args):
     print("\n".join(out))
 
 
+def cmd_days(args):
+    start = parse_date(args.day)
+    for i in range(args.days):
+        args.day = (start + timedelta(days=i)).strftime("%Y-%m-%d")
+        cmd_day(args)
+        if i < args.days - 1:
+            print("\n---\n")
+
+
+def cmd_report(args):
+    """Run the whole calculation set in one go and write numbered files to --out."""
+    import contextlib
+    import io
+    import os
+    os.makedirs(args.out, exist_ok=True)
+    tz = TZ(args.tz)
+    asof = parse_moment(args.asof) if args.asof else tz.from_utc(datetime.utcnow())
+    args.asof = asof.strftime("%Y-%m-%dT%H:%M")
+    written = []
+
+    def run(fn, name, **over):
+        ns = argparse.Namespace(**vars(args))
+        for k, v in over.items():
+            setattr(ns, k, v)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            fn(ns)
+        path = os.path.join(args.out, name)
+        with open(path, "w") as fh:
+            fh.write(buf.getvalue())
+        written.append(path)
+
+    nxt = (asof.replace(day=1) + timedelta(days=32)).replace(day=1)
+    end12 = (nxt + timedelta(days=366)).replace(day=1) - timedelta(days=1)
+    tomorrow = (asof + timedelta(days=1)).strftime("%Y-%m-%d")
+    birth = parse_date(args.date)
+    try:
+        bday = birth.replace(year=asof.year)
+    except ValueError:
+        bday = birth.replace(year=asof.year, day=28)
+    vyear = asof.year if asof >= bday else asof.year - 1
+    run(cmd_chart, "01-chart.md", json=False)
+    run(cmd_transits, "02-transits-12-months.md", monthly=True, mars_hits=False,
+        **{"from": nxt.strftime("%Y-%m-%d"), "to": end12.strftime("%Y-%m-%d")})
+    run(cmd_transits, "03-transits-next-7-days.md", monthly=False, mars_hits=True,
+        **{"from": tomorrow, "to": (asof + timedelta(days=7)).strftime("%Y-%m-%d")})
+    run(cmd_days, f"04-hourly-{tomorrow}.md", day=tomorrow, days=args.hour_days)
+    run(cmd_varshphal, f"05-varshphal-{vyear}.md", year=vyear)
+    run(cmd_transits, "06-slow-transits-5-years.md", monthly=True, mars_hits=False,
+        **{"from": nxt.strftime("%Y-%m-%d"), "to": (nxt + timedelta(days=5 * 365)).strftime("%Y-%m-%d")})
+    print("\n".join(written))
+
+
 # --------------------------------------------------------------------------
 # Dasha only / Varshphal
 # --------------------------------------------------------------------------
@@ -1817,13 +2286,24 @@ def main(argv=None):
     t.add_argument("--from", required=True)
     t.add_argument("--to", required=True)
     t.add_argument("--monthly", action="store_true", help="month-by-month instead of daily")
+    t.add_argument("--mars-hits", action="store_true", help="also list Mars hits on natal points")
     t.set_defaults(fn=cmd_transits)
 
     d = sub.add_parser("day", help="one day hour by hour")
     add_birth(d)
     add_at(d)
-    d.add_argument("--day", required=True, help="YYYY-MM-DD")
-    d.set_defaults(fn=cmd_day)
+    d.add_argument("--day", required=True, help="YYYY-MM-DD (first day)")
+    d.add_argument("--days", type=int, default=1, help="number of consecutive days")
+    d.set_defaults(fn=cmd_days)
+
+    r = sub.add_parser("report", help="run chart + 12-month + 7-day + hourly + varshphal + 5-year transits into --out")
+    add_birth(r)
+    add_at(r)
+    r.add_argument("--asof", default=None, help="analysis date YYYY-MM-DD[THH:MM] (default now)")
+    r.add_argument("--years", type=int, default=12)
+    r.add_argument("--hour-days", type=int, default=1, help="days of hour-by-hour tables from tomorrow")
+    r.add_argument("--out", required=True, help="output folder")
+    r.set_defaults(fn=cmd_report)
 
     v = sub.add_parser("dasha", help="Vimshottari periods (works without pyswisseph via --moon-lon)")
     add_birth(v, need_swe=False)

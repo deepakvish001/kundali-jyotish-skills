@@ -49,10 +49,12 @@ Venus). It is very common - a large share of all charts qualify from at least on
 Common cancellations (tradition-dependent; cite them as "traditionally considered"): Mars in own
 sign (Aries, Scorpio) or exalted (Capricorn); Mars conjunct or aspected by Jupiter; Mars in
 Cancer/Leo for some houses; Lagna Aries/Scorpio/Cancer/Leo per some authors; both partners
-Manglik; "dosha reduces after 28" (folk). Weight: one factor in compatibility among many (7th
-house, Venus, D9, Upapada, mutual dasha harmony). Never say "marriage will fail"; say what Mars
-indicates (strong will, need for respectful conflict style, physical energy) and how to handle it.
-Report pages that declare "Manglik" from the Lagna alone should be qualified.
+Manglik; "dosha reduces after 28" (folk). Results when uncancelled: delay in marriage, heated
+conflicts, separation tendency, partner's health stress - stronger from Lagna than from Moon/Venus,
+strongest in 7th/8th. State the degree of dosha (full / partial / cancelled) with the reasons, its
+effect on the 7th house and the matching rule (marry a Manglik partner), and give the remedies
+(references/08-remedies.md). A report's "Manglik" from the Lagna alone must be re-checked from Moon
+and Venus with cancellations.
 
 **Kaal Sarp.** All seven planets on one side of the Rahu-Ketu axis. Not described in BPHS or other
 classical texts; a modern popular concept. Many accomplished people have it. If asked, explain
@@ -78,7 +80,7 @@ definitions; if a report mentions it, say it is tradition-specific and suggest s
 remembrance (shraddha, daan) only if the person values that.
 
 **Gandanta / Gandmool** - Moon or Lagna at water-fire junction degrees; traditional shanti is
-optional. Describe as "sensitive start, needs nurturing", never as danger.
+recommended. Effects: troubled early years or strain on a family member, then strength.
 
 ## 4. Sade Sati and Saturn's dhaiya
 
@@ -90,8 +92,10 @@ optional. Describe as "sensitive start, needs nurturing", never as danger.
 - **How bad is it?** Depends on: Saturn's functional nature for the Lagna (yogakaraka for
   Taurus/Libra, Lagna lord for Capricorn/Aquarius - often productive), Saturn's natal strength,
   Saturn's own BAV bindus in the transited signs (≥4 = manageable/good, ≤2 = harder), SAV of those
-  signs, and the running dasha. Many people build careers during Sade Sati. Never present it as a
-  disaster; present it as a demanding, character-building phase with dates and coping steps.
+  signs, and the running dasha. When Saturn is a functional malefic with ≤2 bindus and a malefic
+  dasha runs, say plainly that it is a hard phase (losses, illness in family, career setbacks,
+  mental pressure) with dates and remedies; when Saturn is yogakaraka/Lagna lord with 4+ bindus,
+  say it builds career and status.
 - Dates come from the script's Sade Sati table (it includes retrograde re-entries). Say which
   phase is running and when it ends.
 
@@ -99,7 +103,7 @@ optional. Describe as "sensitive start, needs nurturing", never as danger.
 
 - "Aapki kundli mein Gajakesari yoga hai, lekin Guru 8th house mein hai, isliye iska asar
   moderate hai - padhai aur mentors se laabh, par effort zaroori."
-- "Report mein Manglik likha hai; Lagna se Mangal 7th mein hai, par Mangal par Guru ki drishti
-  hai jo paramparik roop se ise kam maanti hai. Shaadi ke liye dono kundliyon ka poora milan
-  dekhna sahi rahega - sirf is ek baat se faisla na karein."
-- Avoid: "dosh", "shraap", "barbaadi", "naash" as verdicts. Use "challenge", "dhyan dene wali baat".
+- "Report mein Manglik likha hai; Lagna se Mangal 7th mein hai aur koi cancellation nahi - yeh
+  poorn Mangal dosh hai. Shaadi 28 ke baad aur Manglik partner se karein; Mangalvar vrat aur
+  Hanuman Chalisa karein."
+- Say doshas by their names and their effects directly; then the remedy.

@@ -11,7 +11,7 @@ This repo holds Claude skills for Vedic astrology (Jyotish). The main skill is
 - After changing `scripts/jyotish.py`, run `chart`, `day` and `transits` for at least one eval
   chart and check against known dates (e.g. Saturn entered sidereal Aquarius on 17 Jan 2023,
   Jupiter entered Taurus on 1 May 2024) before committing.
-- Guardrails are part of the product: no death/lifespan predictions, health = "doctor se salah
-  lein", gemstones are never a cure, Manglik/Kaal Sarp with cancellations and no fear language,
-  Avakahada varna is not caste.
+- Readings are direct (no disclaimers or softening). Only four fixed limits: no date of death or
+  remaining lifespan, never advise stopping medical treatment, no lottery/betting numbers, no
+  prediction of an unborn child's sex. Doshas always come with their cancellation check (accuracy).
 - Eval workspaces (`*-workspace/`) are scratch output; do not commit them.

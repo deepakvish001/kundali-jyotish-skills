@@ -43,8 +43,8 @@ Mercury and Venus ~1 month/sign (variable), Mars ~1.5-2 months/sign (6+ when ret
 
 Odd signs (1,3,5...) are masculine, even signs feminine. Movable signs favour change and travel,
 fixed signs stability, dual signs both. Water-fire sign junctions (end of 4/8/12, start of 5/9/1)
-are **gandanta** - sensitive degrees for planets and Lagna; describe as "needs more care", never
-as a curse.
+are **gandanta** - knotted, crisis-prone degrees for planets and Lagna: early struggles, sudden
+turns, then transformation. Gandanta Moon/Lagna traditionally calls for Gandmool shanti.
 
 ## 3. Houses (bhavas)
 
@@ -103,8 +103,9 @@ Bhavat bhavam: the Nth house from house N repeats its theme (7th from 7th = 1st;
 | 27 | Revati | Mercury | Pushan | Deva | nourishment, safe journeys, completion |
 
 Each nakshatra = 13°20', 4 padas of 3°20' (each pada = one navamsa). Gandmool nakshatras
-(Ashwini, Ashlesha, Magha, Jyeshtha, Mula, Revati) are a folk concern; mention that a traditional
-shanti is optional and never frightening.
+(Ashwini, Ashlesha, Magha, Jyeshtha, Mula, Revati): traditionally believed to bring early
+difficulties to the native or a family member (Mula - father, Ashlesha - mother-in-law, Jyeshtha -
+elder sibling, by tradition); prescribe Gandmool shanti (references/08-remedies.md).
 
 Use: the Moon's nakshatra colours the mind and sets the dasha; the Lagna nakshatra colours the
 body/approach; a planet in a nakshatra delivers part of the nakshatra lord's results.
