@@ -9,7 +9,7 @@ import sys
 from datetime import datetime, timedelta
 
 PROFILE_DIR = os.environ.get("KUNDALI_HOME", os.path.join(os.path.expanduser("~"), ".kundali"))
-BIRTH_KEYS = ["date", "time", "tz", "lat", "lon", "place", "name"]
+BIRTH_KEYS = ["date", "time", "tz", "lat", "lon", "place", "name", "sex"]
 
 
 def _J():
@@ -366,6 +366,12 @@ def cmd_match(args):
         out.append("\nOnly one side is Manglik (uncancelled): traditional mismatch - remedies or matching advised.")
     elif active(mb):
         out.append("\nBoth Manglik: traditionally the doshas balance each other.")
+    if args.system in ("south", "both"):
+        import jyotish_more
+        dk, goods = jyotish_more.dashakoota(J, boy, girl)
+        out.append(f"\n**South Indian Dashakoota (10 poruthams): {goods}/10 good**\n")
+        out.append(J.table(["Porutham", "Basis", "Result"], dk))
+        out.append("Rajju and Vedha are decisive in South Indian practice; rules vary by region.")
     out.append("\nAlso compare: 7th houses and lords, Venus/Jupiter, D9 charts, and both running dashas "
                "for the planned marriage year (run `chart --profile` for each).")
     print("\n".join(out))
@@ -378,9 +384,11 @@ def cmd_match(args):
 ALL_GOOD_NAK = {0, 3, 4, 6, 7, 11, 12, 13, 14, 16, 20, 21, 22, 23, 25, 26}
 PURPOSES = {
     "marriage": dict(nak={3, 4, 9, 11, 12, 14, 16, 18, 20, 25, 26}, days={0, 2, 3, 4},
-                     chog={"Amrit", "Shubh", "Labh"}, lagna="fixed_dual", seasonal=True),
+                     chog={"Amrit", "Shubh", "Labh"}, lagna="fixed_dual", seasonal=True,
+                     chog_required=False, night=True),
     "griha_pravesh": dict(nak={3, 4, 11, 13, 16, 20, 25, 26}, days={0, 2, 3, 4},
-                          chog={"Amrit", "Shubh", "Labh"}, lagna="fixed", seasonal=True),
+                          chog={"Amrit", "Shubh", "Labh"}, lagna="fixed", seasonal=True,
+                          chog_required=False),
     "vehicle": dict(nak={0, 6, 7, 12, 13, 14, 16, 21, 22, 26}, days={0, 2, 3, 4},
                     chog={"Amrit", "Shubh", "Labh", "Chal"}, lagna="movable", seasonal=False),
     "business": dict(nak={0, 3, 7, 11, 12, 13, 16, 20, 21, 25, 26}, days={2, 3, 4},
@@ -468,7 +476,7 @@ def cmd_muhurta(args):
                 return J.CHOGHADIYA[J.HORA_ORDER[(idx + k) % 7]]
             k = int((j - ss) / npart)
             return J.CHOGHADIYA[J.HORA_ORDER[((idx + 5) - 2 * k) % 7]]
-        end = sr2 if args.include_night else ss
+        end = sr2 if (args.include_night or rule.get("night")) else ss
         slots, j = [], sr
         step = 10 / 1440
         while j < end - 1e-9:
@@ -478,7 +486,10 @@ def cmd_muhurta(args):
                   and pan["tithi_index"] != 29 and pan["yoga"] not in BAD_YOGAS
                   and not pan["karana"].startswith("Vishti")
                   and not any(a <= mid < b for a, b in bad_win)
-                  and chog_at(mid) in rule["chog"])
+                  and (chog_at(mid) in rule["chog"] or not rule.get("chog_required", True)))
+            moon_lon = e.lon(mid, "Moon")
+            if ok and moon_lon >= 300 and args.purpose in ("griha_pravesh", "travel"):
+                ok = False    # Panchak: Moon in Aquarius/Pisces (Dhanishta 3rd pada to Revati)
             asg = J.sign_of(e.asc(mid, lat, lon))
             mod = asg % 3
             if ok and rule["lagna"] == "fixed" and mod != 1:
@@ -510,7 +521,7 @@ def cmd_muhurta(args):
             excluded["no clean window"] = excluded.get("no clean window", 0) + 1
         for w in windows:
             pan, asg, chog, tara = w[2][3], w[2][4], w[2][5], w[2][6]
-            score = (w[1] - w[0]) * 1440 / 10 + (5 if chog == "Amrit" else 0) + (
+            score = (w[1] - w[0]) * 1440 / 10 + (5 if chog == "Amrit" else 2 if chog in ("Shubh", "Labh") else 0) + (
                 3 if pan["nakshatra"] in ("Pushya", "Rohini", "Uttara Phalguni", "Revati") else 0) + (
                 3 if tara in ("Sampat", "Sadhaka", "Parama Mitra") else 0)
             days.append((score, day, w, pan, asg, chog, tara))
@@ -523,7 +534,7 @@ def cmd_muhurta(args):
     if days:
         out.append(J.table(["Rank", "Date", "Window", "Nakshatra", "Tithi", "Yoga", "Lagna at start",
                             "Choghadiya", "Tara"],
-                           [[i + 1, f"{d:%a %d %b %Y}", f"{J.fmt_local(loc(w[0]), False)}-{J.fmt_local(loc(w[1]), False)}",
+                           [[i + 1, f"{loc(w[0]):%a %d %b %Y}", f"{J.fmt_local(loc(w[0]), False)}-{J.fmt_local(loc(w[1]), False)}",
                              pan["nakshatra"], pan["tithi"], pan["yoga"], J.SIGNS[asg], chog, tara or "-"]
                             for i, (sc, d, w, pan, asg, chog, tara) in enumerate(days[:args.top])]))
     else:
@@ -531,7 +542,9 @@ def cmd_muhurta(args):
     if excluded:
         out.append("\nDays excluded: " + ", ".join(f"{k} {v}" for k, v in excluded.items()))
     out.append("\nRules: purpose nakshatras and weekdays, no Rikta tithi/Amavasya, no bad yoga, no Vishti "
-               "(Bhadra), no Rahu kaal/Yamaganda/Gulika, good choghadiya, lagna type"
+               "(Bhadra), no Rahu kaal/Yamaganda/Gulika, lagna type, good choghadiya"
+               + (" (bonus only)" if not rule.get("chog_required", True) else "")
+               + (", no Panchak" if args.purpose in ("griha_pravesh", "travel") else "")
                + (", Kharmas/Chaturmas/Adhik maas/Guru-Shukra asta excluded" if rule["seasonal"] else "")
                + ". Windows shown are the first 10-minute slot's panchang.")
     print("\n".join(out))
@@ -560,6 +573,8 @@ def register(sub, add_birth, add_at):
     add_birth(m)
     m.add_argument("--boy", required=True, help="profile name or 'YYYY-MM-DD,HH:MM,TZ,LAT,LON[,Name]'")
     m.add_argument("--girl", required=True, help="profile name or 'YYYY-MM-DD,HH:MM,TZ,LAT,LON[,Name]'")
+    m.add_argument("--system", default="both", choices=["north", "south", "both"],
+                   help="north = Ashtakoota 36 gunas, south = Dashakoota 10 poruthams")
     m.set_defaults(fn=cmd_match, needs_birth=False)
 
     u = sub.add_parser("muhurta", help="best days/windows for a purpose")

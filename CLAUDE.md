@@ -17,5 +17,7 @@ This repo holds Claude skills for Vedic astrology (Jyotish). The main skill is
 - Changes to the ephemeris settings (node, ayanamsa list, date range) require rebuilding
   `scripts/data/ephem.bin` with `scripts/build_ephem.py` and re-checking lite vs swe
   (`chart --engine lite` vs `--engine swe` should differ only in sunrise-based points by minutes).
-- Birth profiles live in `~/.kundali/` (personal data) - never commit them.
+- Birth profiles and the prediction log live in `~/.kundali/` (personal data) - never commit them.
+- Do not add Narayana/Kalachakra dasha or the Sarvatobhadra chakra without a verified source for
+  their rules; wrong dasha dates are worse than none.
 - Eval workspaces (`*-workspace/`) are scratch output; do not commit them.

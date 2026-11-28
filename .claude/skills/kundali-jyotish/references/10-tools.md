@@ -1,7 +1,8 @@
 # Tools: profiles, rectification, kundali milan, muhurta, built-in ephemeris
 
 Contents: 1. Profiles · 2. Birth-time rectification · 3. Kundali milan · 4. Muhurta finder ·
-5. Built-in ephemeris
+5. Built-in ephemeris · 6. Event finder · 7. Tajik Varshphal · 8. KP Prashna · 9. Charts and
+PDF · 10. Daily rashifal · 11. Prediction log
 
 ## 1. Profiles
 
@@ -92,3 +93,72 @@ ascendant within 10 arc-seconds, sunrise within ~30 s (so Bhava/Hora/Ghati lagna
 few arc-minutes). Not available in this mode: eclipses (listed as unavailable) and Placidus cusps
 (KP section uses Porphyry - say so for KP cusp sub-lord answers). Dates outside 1900-2100 need
 pyswisseph. Rebuild the data with `python3 scripts/build_ephem.py` (needs pyswisseph).
+
+## 6. Event finder
+
+```bash
+$PY $J event --profile rahul --type marriage --from 2026-12-01 --to 2030-12-31 --top 12
+```
+Types as in `rectify`. Each month is checked by four independent layers: Vimshottari MD/AD/PD
+signification of the event houses/karakas, Yogini MD/AD lords, Jaimini Chara dasha sign relation
+to the event houses/lords/karakas, and the Jupiter + Saturn double transit. 3-4 layers = Pakka,
+2 = Sambhav, 1 = Jhukav. Then narrow the best months with `transits` exact-hit dates.
+
+## 7. Tajik Varshphal
+
+```bash
+$PY $J tajik --profile rahul --year 2027 [--at-lat --at-lon --at-tz <current city>]
+```
+Gives the solar-return moment, Varsha lagna, Muntha, the five office-bearers and the year lord
+(strongest bearer with a Tajik aspect to the Varsha lagna, strength by sign dignity + kendra, a
+simplified Pancha-vargiya), Sahams (Punya, Vidya, Vivaha, Putra), Ithasala/Ishrafa yogas
+(Tajik orbs: Sun 15, Moon 12, Mars 8, Mercury 7, Jupiter 9, Venus 7, Saturn 9), Mudda dasha and
+the 12 monthly (Masa pravesh) charts.
+
+## 8. KP Prashna
+
+```bash
+$PY $J prashna --number 108 --question marriage --at-lat .. --at-lon .. --at-tz .. [--when now]
+```
+The person thinks of the question and gives a number 1-249 (KP sub divisions, sign boundaries
+split). The number fixes the horary ascendant; cusps are cast for the moment that degree rises
+at the place (Placidus with pyswisseph, Porphyry with the built-in ephemeris), planets for the
+question time, KP ayanamsa and true node. Verdict from the question cusp's sub lord (marriage 7,
+job 10, money 2, property 4, travel 12, child 5, health 1, litigation 6, education 4, business 7)
+and the houses it signifies, plus the ruling planets for timing.
+
+## 9. Charts and PDF
+
+```bash
+$PY $J charts --profile rahul --out charts/ [--pdf]
+```
+North and South Indian SVGs for D1, D9, D10 and the Moon chart, plus `kundali.html` (charts +
+planet table). `--pdf` renders `kundali.pdf` where Node + Playwright exist; otherwise open the HTML
+and print to PDF. Share the files with the person.
+
+## 10. Daily rashifal
+
+```bash
+$PY $J daily --profile rahul --at-lat .. --at-lon .. --at-tz .. [--day YYYY-MM-DD]
+```
+Seven lines: panchang, Moon's house from natal Moon/Lagna with chandrabala and tarabala, running
+dasha to Prana, good choghadiya windows outside Rahu kaal, Rahu kaal, and sign changes that day.
+To send it every morning, create a scheduled task (in Claude Code: the scheduled-task tools; at a
+time the person chooses) whose prompt runs this command for their saved profile and city and
+writes it up in their language. The profile must exist where the task runs.
+
+## 11. Prediction log
+
+```bash
+$PY $J log add --profile rahul --start 2027-03-01 --end 2027-06-30 --area career --strength Pakka \
+   --technique "vimshottari+double-transit" --text "Job change / promotion"
+$PY $J log list --profile rahul --due        # past their end date without an outcome
+$PY $J log mark --id 3 --outcome hit|partial|miss --note "..."
+$PY $J log stats [--profile rahul]           # hit rate by strength, area, technique
+```
+Stored in `~/.kundali/predictions.json` next to the profiles.
+
+## Not implemented
+
+Narayana dasha, Kalachakra dasha and the Sarvatobhadra chakra are not computed: their rules and
+grid layouts need a verified source. If asked, say so and use the implemented systems instead.

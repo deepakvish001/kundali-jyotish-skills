@@ -17,8 +17,15 @@ Claude skills for detailed Vedic astrology (Jyotish) kundali reading. The main s
   (hora, choghadiya, Rahu kaal, rising-sign windows), each with its reasons and a strength label
   (Pakka / Sambhav / Jhukav), plus full remedies (gemstone, mantra, daan, dosha upay);
 - **rectifies an uncertain birth time** from dated life events, does **kundli milan** (36-gun
-  Ashtakoota with Nadi/Bhakoot cancellations and Manglik comparison), finds **shubh muhurat**
+  Ashtakoota + South Indian 10-porutham Dashakoota, Manglik comparison), finds **shubh muhurat**
   (marriage, griha pravesh, vehicle, business, travel, interview) and saves birth profiles;
+- full Shadbala + Bhava bala + Ishta/Kashta, Ashtottari / Shodashottari / Jaimini Chara dasha,
+  full Tajik Varshphal (year lord, sahams, Tajik yogas, Mudda dasha, monthly charts), Ashtakavarga
+  shodhana and pindas, KP Prashna (1-249), an event finder that ranks months by agreement of three
+  dasha systems with transits, 32 Nabhasa and other named yogas;
+- knowledge library: 144 house-lord results, planets in houses/signs, 100+ yogas, Hindi glossary;
+- North/South Indian chart images (SVG/HTML/PDF), a daily personal rashifal command and a
+  prediction log that tracks hit rates;
 - works even where pyswisseph can't be installed (e.g. the Claude app) via a built-in ephemeris
   for 1900-2100;
 - answers in the user's language, Hinglish by default for Hinglish questions.
@@ -36,10 +43,12 @@ Claude skills for detailed Vedic astrology (Jyotish) kundali reading. The main s
 │   ├── setup.sh             finds or installs pyswisseph, prints the python to use
 │   ├── jyotish.py           engine: report | chart | transits | day | dasha | varshphal
 │   ├── jyotish_ext.py       profile | rectify | match | muhurta
+│   ├── jyotish_more.py      tajik | prashna | event | charts | daily | log + chart sections 20-23
 │   ├── lite_ephem.py        built-in ephemeris backend (no pyswisseph needed)
 │   ├── build_ephem.py       rebuilds data/ephem.bin from pyswisseph
 │   └── data/ephem.bin       daily ephemeris 1900-2100 (1.7 MB)
-├── references/              01 reading reports ... 09 advanced layers, 10 tools
+├── references/              01 reading reports ... 10 tools, 11 bhavesh phala, 12 planets in
+│                            houses/signs, 13 yoga library, 14 Hindi glossary
 ├── assets/master-prompt.md  copy-paste prompt for chat apps without the skill
 └── evals/                   test prompts + a fictional kundali PDF
 ```
@@ -63,7 +72,8 @@ Just talk to Claude:
 
 ## Calculation engine (optional, direct use)
 
-`chart` prints 19 sections: panchang, planets, houses, 16 vargas, KP, yogas/doshas, Jaimini,
+`chart` prints 23 sections (the 19 below plus extra yogas, full Shadbala/Bhava bala, other dashas,
+Ashtakavarga shodhana): panchang, planets, houses, 16 vargas, KP, yogas/doshas, Jaimini,
 ashtakavarga, Vimshottari to Prana, transits, Sade Sati, planet details (nakshatra deity, tara,
 avasthas, flags), friendship tables, aspect strength in virupas, Bhava Chalit, strength
 (bala components, Vimshopaka), special lagnas and upagrahas, Yogini dasha, prastarashtakavarga,
@@ -82,6 +92,12 @@ $PY $S profile save --profile me --date ... --time ... --tz ... --lat ... --lon 
 $PY $S rectify   --profile me --window 30 --event 2015-08-01:job --event 2018-02-14:marriage --event 2019-11-03:child
 $PY $S match     --boy me --girl "1993-09-12,22:40,Asia/Kolkata,19.08,72.88,Priya"
 $PY $S muhurta   --purpose marriage --from 2027-01-01 --to 2027-06-30 --at-lat 26.91 --at-lon 75.79 --at-tz Asia/Kolkata
+$PY $S event     --profile me --type marriage --from 2026-12-01 --to 2030-12-31
+$PY $S tajik     --profile me --year 2027
+$PY $S prashna   --number 108 --question job --at-lat 26.91 --at-lon 75.79 --at-tz Asia/Kolkata
+$PY $S charts    --profile me --out charts/ --pdf
+$PY $S daily     --profile me
+$PY $S log       add|list|mark|stats ...
 ```
 
 Defaults: Lahiri ayanamsa, mean node, whole-sign houses (Placidus only for KP), 365.2425-day

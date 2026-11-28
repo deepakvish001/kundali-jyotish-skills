@@ -27,6 +27,12 @@ Subcommands
   rectify    birth-time rectification from life events
   match      kundali milan: Ashtakoota 36 gunas + dosha exceptions + Manglik
   muhurta    best days and time windows for a purpose in a date range
+  tajik      full Tajik Varshphal (year lord, sahams, Tajik yogas, Mudda dasha, monthly charts)
+  prashna    KP horary with a number 1-249
+  event      rank months for marriage/job/child/... by multi-dasha + transit agreement
+  charts     North/South Indian SVG charts + kundali.html (+ PDF)
+  daily      short personal daily rashifal
+  log        prediction log: add / list / mark / stats
   report     Everything above in one go, written as numbered files to --out
              (chart, 12-month and 7-day transits with exact hits, tomorrow's
              hours, current Varshphal, 5-year slow transits).
@@ -1835,6 +1841,9 @@ def cmd_chart(args):
     out.append("\nIf a factor flips within the uncertainty of the recorded time, say so and "
                "avoid fine predictions that depend on it (D9/D10 details, PD/Sookshma dates).")
 
+    import jyotish_more
+    out.extend(jyotish_more.chart_sections(n, args, asof_jd))
+
     text = "\n".join(out)
     if args.json:
         data = {"lagna": SIGNS[n.lagna], "asc_lon": n.asc_lon, "moon_sign": SIGNS[n.moon_sign],
@@ -2195,6 +2204,9 @@ def cmd_report(args):
     run(cmd_varshphal, f"05-varshphal-{vyear}.md", year=vyear)
     run(cmd_transits, "06-slow-transits-5-years.md", monthly=True, mars_hits=False,
         **{"from": nxt.strftime("%Y-%m-%d"), "to": (nxt + timedelta(days=5 * 365)).strftime("%Y-%m-%d")})
+    import jyotish_more
+    run(jyotish_more.cmd_tajik, f"07-tajik-{vyear}.md", year=vyear)
+    run(jyotish_more.cmd_charts, "08-charts.txt", out=os.path.join(args.out, "charts"), pdf=args.pdf)
     print("\n".join(written))
 
 
@@ -2326,6 +2338,7 @@ def main(argv=None):
     r.add_argument("--years", type=int, default=12)
     r.add_argument("--hour-days", type=int, default=1, help="days of hour-by-hour tables from tomorrow")
     r.add_argument("--out", required=True, help="output folder")
+    r.add_argument("--pdf", action="store_true", help="also render charts/kundali.pdf (needs node + playwright)")
     r.set_defaults(fn=cmd_report)
 
     v = sub.add_parser("dasha", help="Vimshottari periods (works without pyswisseph via --moon-lon)")
@@ -2345,7 +2358,9 @@ def main(argv=None):
     y.set_defaults(fn=cmd_varshphal)
 
     import jyotish_ext
+    import jyotish_more
     jyotish_ext.register(sub, add_birth, add_at)
+    jyotish_more.register(sub, add_birth, add_at)
     args = ap.parse_args(argv)
     jyotish_ext.apply_profile(args)
     need = ["date", "time", "tz"] + ([] if args.cmd == "dasha" else ["lat", "lon"])
