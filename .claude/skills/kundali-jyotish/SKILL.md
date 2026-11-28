@@ -1,6 +1,6 @@
 ---
 name: kundali-jyotish
-description: Expert Vedic astrology (Jyotish) kundali reading - reads a kundli/janam patri report (PDF, screenshot, photo of a handwritten Hindi janampatri, AstroSage/ClickAstro/Jagannatha Hora printout) or raw birth details, recomputes the chart with Swiss Ephemeris, analyses every layer (rashi, house, exact degree, nakshatra-pada, friend/enemy, uchcha/neecha, vakri/asta, aspects with strength, avasthas, D1-D60 vargas, bala, yogas/doshas, Vimshottari + Yogini dasha, gochar with exact hits, ashtakavarga, KP, Jaimini, special lagnas, upagrahas) and gives direct timed predictions by year, month, week, day and hour with remedies. Use it whenever someone shares a kundali or birth date/time/place, or asks about lagna, rashi, nakshatra, mahadasha/antardasha, Sade Sati, Manglik, Kaal Sarp, yogas, Varshphal, rashifal, muhurta, hora/choghadiya/Rahu kaal, gemstones/upay, compatibility, or "meri shaadi/naukri/paisa kab", "kab kya hoga" questions - in Hindi, Hinglish or English - even if they only say "meri kundli dekho".
+description: Expert Vedic astrology (Jyotish) kundali reading. Reads a kundli/janam patri (PDF, screenshot, handwritten Hindi patri, AstroSage/Jagannatha Hora printout) or birth details, recomputes the chart with an exact ephemeris, analyses every layer (rashi, house, degree, nakshatra, friend/enemy, uchcha/neecha, vakri/asta, aspect strength, avasthas, D1-D60, bala, yogas/doshas, Vimshottari + Yogini dasha, gochar with exact hits, ashtakavarga, KP, Jaimini) and gives direct predictions by year, month, week, day and hour with remedies. Also rectifies birth time from life events, does kundli milan (36 gun) and shubh muhurat search. Use whenever someone shares a kundali or birth date/time/place, or asks about lagna, rashi, dasha, Sade Sati, Manglik, Kaal Sarp, Varshphal, rashifal, muhurat, Rahu kaal, gemstones/upay, gun milan, or "meri shaadi/naukri/paisa kab" - in Hindi, Hinglish or English - even if they only say "meri kundli dekho".
 ---
 
 # Kundali Jyotish - complete chart reading and timing
@@ -42,8 +42,13 @@ $PY $J report --date YYYY-MM-DD --time HH:MM --tz Asia/Kolkata --lat .. --lon ..
 `report` writes everything in one go: `01-chart.md` (19 sections), `02-transits-12-months.md`,
 `03-transits-next-7-days.md`, `04-hourly-<tomorrow>.md`, `05-varshphal-<year>.md`,
 `06-slow-transits-5-years.md`. Individual commands (`chart`, `transits`, `day --days N`, `dasha`,
-`varshphal`) exist for other dates or places. If setup fails, use the report's tables and
-`dasha --moon-lon` (plain python3), and mark transit dates as approximate.
+`varshphal`) exist for other dates or places. Tools (`references/10-tools.md`): `profile`
+(save/reuse birth details; every command takes `--profile NAME`), `rectify` (birth-time
+rectification from life events), `match` (kundali milan), `muhurta` (best dates and windows).
+
+Where pyswisseph cannot be installed (e.g. the Claude app), the engine switches automatically to
+its built-in ephemeris for 1900-2100 (planets <2", ascendant <10", sunrise ~30 s). Only eclipses
+and Placidus (KP) cusps are unavailable then; the chart header names the engine used.
 
 ## Step 1 - Read the report completely
 
@@ -59,7 +64,10 @@ Run `report` (or `chart`). Compare with the report: Lagna degree, Moon nakshatra
 planet's sign/degree (within ~1°; nodes mean vs true ~1.5°), dasha dates (a few days differ by
 year length; months differ = wrong time/ayanamsa). Explain any mismatch and which data you use.
 Check section 19 (birth-time sensitivity): if Lagna, D9 or Moon pada flips within the time's
-uncertainty, read both charts where it matters and say so.
+uncertainty, read both charts where it matters and say so. When the time is approximate or on a
+boundary, ask for 4-6 dated life events (marriage, job, child, education, moves, parents' loss) and
+run `rectify`; use the winning segment's time for everything after and state the rectified time.
+Save birth details with `profile save` so later questions reuse them.
 
 ## Step 3 - Read the chart, layer by layer
 
@@ -131,6 +139,16 @@ Rules (details in `references/04-dasha.md`, `references/05-timing.md`):
 - Use the person's current city for days/hours (`--at-lat/--at-lon/--at-tz`); ask, or use the
   birth place and say so.
 
+## Step 5b - Matching and muhurta questions
+
+- **Kundali milan** ("shaadi ke liye kundli milao"): run `match` (Ashtakoota 36 gunas with Nadi /
+  Bhakoot cancellations and Manglik comparison), then add the 7th house/lord, Venus/Jupiter, D9,
+  Upapada and both dashas for the marriage period. Give the score, the doshas and their
+  cancellations, and a clear recommendation with remedies.
+- **Muhurta** ("shaadi / griha pravesh / gaadi / dukaan / interview ka shubh muhurat"): run
+  `muhurta --purpose ...` for the date range and place, with `--profile` for the person (both
+  partners for marriage), and present the top windows with their panchang.
+
 ## Step 6 - Remedies
 
 `references/08-remedies.md`: for each weak benefic or troublesome malefic, give the full
@@ -160,4 +178,5 @@ specific. If a filesystem exists, also save the reading as Markdown and say wher
 | `references/07-report-format.md` | Writing the reading |
 | `references/08-remedies.md` | Gemstones, mantras, daan, dosha remedies |
 | `references/09-advanced-layers.md` | Friendship tables, virupa aspects, avasthas, chalit, bala, special lagnas, upagrahas, Yogini, prastara, exact hits |
+| `references/10-tools.md` | Profiles, birth-time rectification, kundali milan, muhurta finder, built-in ephemeris |
 | `assets/master-prompt.md` | Copy-paste prompt for chat apps without the skill |

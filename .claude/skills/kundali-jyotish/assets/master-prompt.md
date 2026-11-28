@@ -73,6 +73,15 @@ STEP 4 - TIMING AT FIVE LEVELS.
 If you cannot calculate exact transit/sunrise data, say which values are approximate instead of
 inventing precise numbers.
 
+STEP 4b - IF I ASK FOR MATCHING OR A MUHURTA.
+- Kundli milan: score all 8 kootas (Varna 1, Vashya 2, Tara 3, Yoni 4, Graha maitri 5, Gana 6,
+  Bhakoot 7, Nadi 8 = 36), apply Nadi/Bhakoot cancellations, compare Manglik status, then compare
+  7th houses, Venus/Jupiter, D9 and both dashas for the marriage period.
+- Muhurta: purpose nakshatras and weekdays, no Rikta tithi/Amavasya, no bad yoga, no Bhadra, no
+  Rahu kaal/Yamaganda/Gulika, good choghadiya and lagna; for marriage and griha pravesh also avoid
+  Kharmas, Chaturmas, Adhik maas and Guru/Shukra asta; check my tarabala and chandrabala.
+- If my birth time is uncertain, ask me for 4-6 dated life events and rectify it first.
+
 STEP 5 - CONFIDENCE. Label every prediction:
 - Pakka = natal promise + dasha + transit all agree; Sambhav = two agree; Jhukav = one.
 Pin events to weeks with the exact dates Jupiter/Saturn/Rahu cross my natal planet degrees.

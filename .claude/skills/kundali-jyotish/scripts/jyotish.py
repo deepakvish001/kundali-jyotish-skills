@@ -23,6 +23,10 @@ Subcommands
              pyswisseph if you pass --moon-lon (sidereal Moon from a report).
   varshphal  Tajik solar return for a year: exact moment, Varsha lagna,
              Muntha, planets.
+  profile    save / list / show / delete birth details (use with --profile NAME)
+  rectify    birth-time rectification from life events
+  match      kundali milan: Ashtakoota 36 gunas + dosha exceptions + Manglik
+  muhurta    best days and time windows for a purpose in a date range
   report     Everything above in one go, written as numbered files to --out
              (chart, 12-month and 7-day transits with exact hits, tomorrow's
              hours, current Varshphal, 5-year slow transits).
@@ -400,6 +404,8 @@ def fmt_local(dt, with_date=True):
 # --------------------------------------------------------------------------
 
 class Ephem:
+    engine = "Swiss Ephemeris (pyswisseph, Moshier)"
+
     def __init__(self, ayanamsa="lahiri", node="mean", hindu_sunrise=False):
         if not HAVE_SWE:
             raise SystemExit(
@@ -459,6 +465,17 @@ class Ephem:
         if res != 0:
             return None
         return tret[0]
+
+
+def make_ephem(args):
+    """pyswisseph when available (or --engine swe), else the built-in 1900-2100 ephemeris."""
+    engine = getattr(args, "engine", "auto")
+    node = getattr(args, "node", "mean")
+    hs = getattr(args, "hindu_sunrise", False)
+    if engine == "swe" or (engine == "auto" and HAVE_SWE):
+        return Ephem(args.ayanamsa, node, hs)
+    from lite_ephem import LiteEphem
+    return LiteEphem(args.ayanamsa, node, hs)
 
 
 def find_change(fn, a, b, iters=40):
@@ -1033,7 +1050,7 @@ class Vimshottari:
 class Natal:
     def __init__(self, args):
         self.args = args
-        self.eph = Ephem(args.ayanamsa, args.node, args.hindu_sunrise)
+        self.eph = make_ephem(args)
         self.tz = TZ(args.tz)
         h, m, s = parse_time(args.time)
         self.local = parse_date(args.date).replace(hour=h, minute=m, second=s)
@@ -1461,6 +1478,7 @@ def cmd_chart(args):
         ["Coordinates", f"{args.lat:.4f} N, {args.lon:.4f} E (negative = S/W)"],
         ["Julian day (UT)", f"{n.jd:.6f}"],
         ["Ayanamsa", f"{args.ayanamsa} = {dms(e.ayanamsa_value(n.jd))}"],
+        ["Ephemeris engine", e.engine],
         ["Node / dasha year", f"{args.node} node / {args.dasha_year} days"],
         ["Analysis date (as-of)", f"{asof_local:%Y-%m-%d %H:%M}"],
     ]))
@@ -1868,6 +1886,8 @@ def cmd_transits(args):
             ev.append((tc, f"{p} {'becomes combust' if b else 'leaves combustion'}"))
     # Eclipses
     try:
+        if not isinstance(e, Ephem):
+            raise RuntimeError("eclipses need pyswisseph; built-in ephemeris active")
         t = jd0
         while True:
             res, tret = swe.sol_eclipse_when_glob(t, swe.FLG_MOSEPH)
@@ -2190,7 +2210,7 @@ def cmd_dasha(args):
     if args.moon_lon is not None:
         moon = args.moon_lon
     else:
-        e = Ephem(args.ayanamsa, args.node)
+        e = make_ephem(args)
         moon = e.lon(jd, "Moon")
     d = Vimshottari(moon, jd, args.dasha_year)
     jd0 = jd_from_utc(tz.to_utc(parse_date(getattr(args, "from")))) if getattr(args, "from") else jd
@@ -2247,12 +2267,15 @@ def cmd_varshphal(args):
 # --------------------------------------------------------------------------
 
 def add_birth(p, need_swe=True):
-    p.add_argument("--date", required=True, help="birth date YYYY-MM-DD")
-    p.add_argument("--time", required=True, help="birth time HH:MM[:SS] 24h, or '06:40 AM'")
-    p.add_argument("--tz", required=True, help="IANA zone (Asia/Kolkata) or offset (+5:30)")
+    p.add_argument("--profile", default=None, help="saved profile name (fills the birth details)")
+    p.add_argument("--date", help="birth date YYYY-MM-DD")
+    p.add_argument("--time", help="birth time HH:MM[:SS] 24h, or '06:40 AM'")
+    p.add_argument("--tz", help="IANA zone (Asia/Kolkata) or offset (+5:30)")
+    p.add_argument("--engine", default="auto", choices=["auto", "swe", "lite"],
+                   help="auto: pyswisseph if installed, else built-in 1900-2100 ephemeris")
     if need_swe:
-        p.add_argument("--lat", type=float, required=True, help="latitude, north positive")
-        p.add_argument("--lon", type=float, required=True, help="longitude, east positive")
+        p.add_argument("--lat", type=float, help="latitude, north positive")
+        p.add_argument("--lon", type=float, help="longitude, east positive")
     p.add_argument("--name", default=None)
     p.add_argument("--place", default=None)
     p.add_argument("--ayanamsa", default="lahiri", choices=["lahiri", "kp", "raman", "yukteshwar", "true_chitra"])
@@ -2321,7 +2344,15 @@ def main(argv=None):
     y.add_argument("--year", type=int, required=True)
     y.set_defaults(fn=cmd_varshphal)
 
+    import jyotish_ext
+    jyotish_ext.register(sub, add_birth, add_at)
     args = ap.parse_args(argv)
+    jyotish_ext.apply_profile(args)
+    need = ["date", "time", "tz"] + ([] if args.cmd == "dasha" else ["lat", "lon"])
+    if getattr(args, "needs_birth", True):
+        missing = [k for k in need if getattr(args, k, None) is None]
+        if missing:
+            ap.error(f"missing birth details {missing}: pass them or use --profile NAME")
     args.fn(args)
 
 
