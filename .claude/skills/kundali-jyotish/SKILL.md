@@ -1,6 +1,6 @@
 ---
 name: kundali-jyotish
-description: Expert Vedic astrology (Jyotish) kundali reading - reads a kundli/janam patri report (PDF, screenshot, photo of a handwritten Hindi janampatri, AstroSage/ClickAstro/Jagannatha Hora printout) or raw birth details, recomputes the chart with Swiss Ephemeris, analyses every layer (rashi, house, exact degree, nakshatra-pada, friend/enemy, uchcha/neecha, vakri/asta, aspects with strength, avasthas, D1-D60 vargas, bala, yogas/doshas, Vimshottari + Yogini dasha, gochar with exact hits, ashtakavarga, KP, Jaimini, special lagnas, upagrahas) and gives direct timed predictions by year, month, week, day and hour with remedies. Use it whenever someone shares a kundali or birth date/time/place, or asks about lagna, rashi, nakshatra, mahadasha/antardasha, Sade Sati, Manglik, Kaal Sarp, yogas, Varshphal, rashifal, muhurta, hora/choghadiya/Rahu kaal, gemstones/upay, compatibility, or "meri shaadi/naukri/paisa kab", "kab kya hoga" questions - in Hindi, Hinglish or English - even if they only say "meri kundli dekho".
+description: Expert Vedic astrology (Jyotish) kundali reading. Reads a kundli/janam patri (PDF, screenshot, handwritten Hindi patri, AstroSage/Jagannatha Hora printout) or birth details, recomputes the chart with an exact ephemeris, analyses every layer (rashi, house, degree, nakshatra, friend/enemy, uchcha/neecha, vakri/asta, aspect strength, avasthas, D1-D60, bala, yogas/doshas, Vimshottari + Yogini dasha, gochar with exact hits, ashtakavarga, KP, Jaimini) and gives direct predictions by year, month, week, day and hour with remedies. Also rectifies birth time from life events, does kundli milan (36 gun) and shubh muhurat search. Use whenever someone shares a kundali or birth date/time/place, or asks about lagna, rashi, dasha, Sade Sati, Manglik, Kaal Sarp, Varshphal, rashifal, muhurat, Rahu kaal, gemstones/upay, gun milan, or "meri shaadi/naukri/paisa kab" - in Hindi, Hinglish or English - even if they only say "meri kundli dekho".
 ---
 
 # Kundali Jyotish - complete chart reading and timing
@@ -42,8 +42,16 @@ $PY $J report --date YYYY-MM-DD --time HH:MM --tz Asia/Kolkata --lat .. --lon ..
 `report` writes everything in one go: `01-chart.md` (19 sections), `02-transits-12-months.md`,
 `03-transits-next-7-days.md`, `04-hourly-<tomorrow>.md`, `05-varshphal-<year>.md`,
 `06-slow-transits-5-years.md`. Individual commands (`chart`, `transits`, `day --days N`, `dasha`,
-`varshphal`) exist for other dates or places. If setup fails, use the report's tables and
-`dasha --moon-lon` (plain python3), and mark transit dates as approximate.
+`varshphal`) exist for other dates or places. Tools (`references/10-tools.md`): `profile`
+(save/reuse birth details; every command takes `--profile NAME`), `rectify` (birth-time
+rectification), `match` (Ashtakoota + South Indian Dashakoota), `muhurta` (best dates/windows),
+`event` (months ranked by Vimshottari + Yogini + Chara dasha + transit agreement), `tajik` (full
+Varshphal), `prashna` (KP horary 1-249), `charts` (North/South SVG + HTML/PDF), `daily` (personal
+daily rashifal), `log` (prediction log). `report` also writes `07-tajik-<year>.md` and `charts/`.
+
+Where pyswisseph cannot be installed (e.g. the Claude app), the engine switches automatically to
+its built-in ephemeris for 1900-2100 (planets <2", ascendant <10", sunrise ~30 s). Only eclipses
+and Placidus (KP) cusps are unavailable then; the chart header names the engine used.
 
 ## Step 1 - Read the report completely
 
@@ -59,7 +67,10 @@ Run `report` (or `chart`). Compare with the report: Lagna degree, Moon nakshatra
 planet's sign/degree (within ~1°; nodes mean vs true ~1.5°), dasha dates (a few days differ by
 year length; months differ = wrong time/ayanamsa). Explain any mismatch and which data you use.
 Check section 19 (birth-time sensitivity): if Lagna, D9 or Moon pada flips within the time's
-uncertainty, read both charts where it matters and say so.
+uncertainty, read both charts where it matters and say so. When the time is approximate or on a
+boundary, ask for 4-6 dated life events (marriage, job, child, education, moves, parents' loss) and
+run `rectify`; use the winning segment's time for everything after and state the rectified time.
+Save birth details with `profile save` so later questions reuse them.
 
 ## Step 3 - Read the chart, layer by layer
 
@@ -82,18 +93,20 @@ prastara) explain each factor.
 | Avasthas: Baladi, Jagradadi, Deeptadi | §11 |
 | Aspects given and received, with virupa strength; conjunction orbs | §3, §13 |
 | Varga dignity (D9 always; D10/D7/D4/D2... for the matter); Vimshopaka score | §4, §15 |
-| Bala: uchcha, dig, naisargika, paksha, saptavargaja, chesta, drik | §15 |
+| Shadbala in rupas vs required minimum, Ishta/Kashta phala | §21 (components §15) |
 | Own BAV bindus in its sign; SAV of its house | §8 |
 | KP star lord and sub lord | §2, §5 |
-| Karakatwa (natural significations) and yogas it forms | references/02, §6 |
+| Karakatwa, its house result and the result of the houses it rules | references/02, 11 (bhavesh phala), 12 (planet in house/sign) |
+| Yogas it forms (Parashari, Nabhasa, named, doshas) | §6, §20, references/13 |
 | Its dasha periods (Vimshottari + Yogini) and its current transit | §9, §10, §17 |
 
 Then rate each planet: very strong / strong / mixed / weak / afflicted, and functional benefic /
 malefic. This table is what makes predictions accurate - do not skip planets.
 
-**B. Bhava profile - all 12 houses:** sign and lord (with the lord's full profile), occupants
-(rashi and chalit), aspects on the bhava madhya with virupas (§13), SAV, karaka, relevant varga,
-arudha (§7), and the house's yogas. Rate each house.
+**B. Bhava profile - all 12 houses:** sign and lord (with the lord's full profile and its bhavesh
+phala, references/11), occupants (rashi and chalit), aspects on the bhava madhya with virupas
+(§13), SAV and reduced BAV/pinda (§23), Bhava bala (§21), karaka, relevant varga, arudha (§7), and
+the house's yogas. Rate each house.
 
 **C. Lagna, Moon, Sun** in depth (body/temperament, mind/emotions, soul/vitality), Chandra
 lagna view, paksha bala.
@@ -116,7 +129,7 @@ foreign, litigation, family, spirituality: follow `references/06-life-areas.md`.
 
 | Resolution | Primary | Secondary | File |
 |---|---|---|---|
-| Years | Vimshottari MD/AD + Yogini | Saturn/Jupiter/Rahu-Ketu, double transit, Sade Sati/dhaiya, exact hits, Varshphal | 01 §9/§17, 06, 05 |
+| Years | Vimshottari MD/AD + Yogini + Chara (+ Ashtottari/Shodashottari when applicable) | Saturn/Jupiter/Rahu-Ketu, double transit, Sade Sati/dhaiya, exact hits, Tajik year | 01 §9/§17/§22, 06, 07, `event` |
 | Months | Pratyantardasha | Sun's sign, Mars/Venus/Mercury, retro stations, eclipses, exact hits | 02 |
 | Weeks | Sookshma | Moon through houses, Chandrashtama, fast-planet ingresses | 03 |
 | Days | Prana (accurate birth time) | Tarabala, chandrabala, tithi, nakshatra, weekday lord | 03 |
@@ -130,6 +143,34 @@ Rules (details in `references/04-dasha.md`, `references/05-timing.md`):
 - Day and hour calls are muhurta choices: say what each window is good for.
 - Use the person's current city for days/hours (`--at-lat/--at-lon/--at-tz`); ask, or use the
   birth place and say so.
+- For "kab hoga" questions about one event, run `event --type <marriage|job|child|property|
+  foreign|...> --from --to`: months where 3-4 independent layers agree are Pakka.
+
+## Step 5b - Matching and muhurta questions
+
+- **Kundali milan** ("shaadi ke liye kundli milao"): run `match` (Ashtakoota 36 gunas with Nadi /
+  Bhakoot cancellations and Manglik comparison), then add the 7th house/lord, Venus/Jupiter, D9,
+  Upapada and both dashas for the marriage period. Give the score, the doshas and their
+  cancellations, and a clear recommendation with remedies.
+- **Muhurta** ("shaadi / griha pravesh / gaadi / dukaan / interview ka shubh muhurat"): run
+  `muhurta --purpose ...` for the date range and place, with `--profile` for the person (both
+  partners for marriage), and present the top windows with their panchang.
+
+- **South Indian matching**: `match --system south|both` adds the 10 poruthams (Rajju and Vedha
+  are decisive).
+- **Prashna** (a question without a birth chart, or "haan/na" questions): ask the person for a
+  number 1-249 and run `prashna --number N --question <type>` for their location and now.
+- **Year questions**: `tajik --year` gives the year lord, Muntha, Sahams, Ithasala yogas, Mudda
+  dasha and monthly charts.
+
+## Step 5c - Prediction log (accuracy over time)
+
+After giving dated predictions for a saved profile, log the main ones:
+`log add --profile P --start --end --area --strength Pakka|Sambhav|Jhukav --technique "..." --text "..."`.
+When a known profile comes back, run `log list --profile P --due` and ask whether the due
+predictions came true; record with `log mark --id N --outcome hit|partial|miss`. `log stats` shows
+hit rates by strength, area and technique: if a label or technique keeps missing, require one more
+agreeing layer before using it, and say so.
 
 ## Step 6 - Remedies
 
@@ -141,8 +182,10 @@ Kaal Sarp, Pitru, Rahu-Ketu) too.
 
 ## Step 7 - Write the reading
 
-`references/07-report-format.md`. Match the person's language (Hinglish by default for Hinglish
-questions). Order: summary -> data check -> graha table + house table -> yogas/doshas -> life
+`references/07-report-format.md`. Match the person's language: Hinglish by default for Hinglish
+questions; Devanagari Hindi when they write in Devanagari or ask for Hindi (terms in
+`references/14-hindi-glossary.md`). Offer the chart images (`charts`, or `report`'s `charts/`
+folder: SVG + `kundali.html`, PDF with `--pdf`) and share them as files. Order: summary -> data check -> graha table + house table -> yogas/doshas -> life
 areas -> dasha -> timeline (years, 12 months, weeks, days, hours as asked) -> remedies. Each
 prediction: what, when (dates), why (factors), strength label, what to do. Be direct and
 specific. If a filesystem exists, also save the reading as Markdown and say where.
@@ -160,4 +203,12 @@ specific. If a filesystem exists, also save the reading as Markdown and say wher
 | `references/07-report-format.md` | Writing the reading |
 | `references/08-remedies.md` | Gemstones, mantras, daan, dosha remedies |
 | `references/09-advanced-layers.md` | Friendship tables, virupa aspects, avasthas, chalit, bala, special lagnas, upagrahas, Yogini, prastara, exact hits |
+| `references/10-tools.md` | Profiles, rectification, milan, muhurta, event, tajik, prashna, charts, daily, log, built-in ephemeris |
+| `references/11-bhavesh-phala.md` | Result of each house lord in each house (144) |
+| `references/12-graha-bhava-rashi.md` | Planets in houses and in signs |
+| `references/13-yoga-library.md` | 100+ yogas with formation and results |
+| `references/14-hindi-glossary.md` | Devanagari terms for Hindi readings |
+
+Not implemented (say so if asked, do not improvise): Narayana dasha, Kalachakra dasha and the
+Sarvatobhadra chakra - their rules/layouts need a verified source before they can be computed.
 | `assets/master-prompt.md` | Copy-paste prompt for chat apps without the skill |

@@ -54,6 +54,43 @@
         "Gives direct chart-based health/period analysis (running Mercury-Moon dasha, maraka/8th activations, hard and supportive periods)",
         "Written in Hinglish/Hindi"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Mera janam 1990-05-01 ko Delhi me hua, time pakka nahi pata, shayad subah 7 se 7:30 ke beech. Meri shaadi 14 Feb 2018 ko hui, pehli naukri 1 Aug 2015 ko lagi, beta 3 Nov 2019 ko hua, aur papa ka dehant 10 May 2021 ko hua. Mera sahi birth time nikalo aur phir lagna batao.",
+      "expected_output": "Runs rectify over the 07:00-07:30 window with the four events, reports the winning Lagna/D9/D10 segment and a rectified time with confidence, and saves a profile.",
+      "files": [],
+      "expectations": [
+        "Runs the rectify tool with all four dated events",
+        "Reports a rectified birth time inside or near the stated window with the Lagna/D9/D10 it implies",
+        "Explains which segment won and why (per-event scores)",
+        "Saves or offers to save a profile"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Ladka: 12-03-1994, 08:20 AM, Lucknow. Ladki: 25-07-1996, 09:45 PM, Bhopal. Gun milan karke batao shaadi ke liye theek hai ya nahi, aur 2027 me shaadi ka shubh muhurat Bhopal ke liye nikalo.",
+      "expected_output": "Ashtakoota table with 36-point total, dosha cancellations, Manglik comparison, a recommendation, and top marriage muhurta windows in 2027 for Bhopal checked against both partners.",
+      "files": [],
+      "expectations": [
+        "Shows all 8 kootas with points and a total out of 36",
+        "States Nadi/Bhakoot dosha status with cancellation checks",
+        "Compares Manglik status of both",
+        "Lists marriage muhurta windows in 2027 for Bhopal excluding Kharmas/Chaturmas",
+        "Applies both partners' tarabala/chandrabala or says how"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Kal mera interview hai Pune me. Mera janam 1998-11-05, 10:10 PM, Pune. Kal ka sabse achha time batao aur kis time bilkul avoid karna hai.",
+      "expected_output": "Uses the muhurta (interview) and day tools for tomorrow in Pune with the person's tarabala/chandrabala; gives top windows and avoid windows (Rahu kaal etc.) with reasons.",
+      "files": [],
+      "expectations": [
+        "Gives specific best time windows for tomorrow in Pune",
+        "Gives the Rahu kaal / Yamaganda / Gulika times to avoid",
+        "Uses the person's tarabala/chandrabala",
+        "Explains each window briefly (hora/choghadiya/nakshatra)"
+      ]
     }
   ]
 }
